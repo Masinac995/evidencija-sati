@@ -326,6 +326,23 @@
         "Ljilja Jakovljevic": "0223"
     };
 
+    // Jednokratni reset za novu cistu instalaciju sa novim PIN kodovima.
+    // Svaki browser/uredjaj ce pri prvom otvaranju ove verzije obrisati staru evidenciju
+    // i postaviti ove PIN kodove kao zvanicne pocetne vrednosti.
+    const CLEAN_DATABASE_VERSION = 'masinac_clean_2026_08_16_pins_v1';
+
+    function initializeCleanDatabaseVersion() {
+        if (localStorage.getItem('database_reset_version') !== CLEAN_DATABASE_VERSION) {
+            localStorage.removeItem('split_db_pins_v4');
+            localStorage.removeItem('worker_rates_pins_v4');
+            localStorage.removeItem('worker_vacation_entitlements_v4');
+            localStorage.setItem('allowed_workers_pins_v4', JSON.stringify(defaultWorkersData));
+            localStorage.setItem('database_reset_version', CLEAN_DATABASE_VERSION);
+        }
+    }
+
+    initializeCleanDatabaseVersion();
+
     function getWorkersData() {
         let stored = localStorage.getItem('allowed_workers_pins_v4');
         if (!stored) {
@@ -1027,10 +1044,13 @@
     }
 
     function clearDatabase() {
-        if (confirm("Da li ste sigurni da želite da obrišete sve podatke iz baze?")) {
+        if (confirm("Da li ste sigurni da želite da obrišete sve evidencije, obračune i dodeljene dane godišnjeg odmora? PIN kodovi i spisak radnika će ostati sačuvani.")) {
             localStorage.removeItem('split_db_pins_v4');
             localStorage.removeItem('worker_rates_pins_v4');
+            localStorage.removeItem('worker_vacation_entitlements_v4');
+            populateWorkerDropdowns();
             loadDatabase();
+            alert("Baza evidencije je očišćena. PIN kodovi i spisak radnika su sačuvani.");
         }
     }
 </script>
