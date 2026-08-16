@@ -196,7 +196,7 @@
 
         <!-- UPRAVLJANJE RADNICIMA I PIN-ovima -->
         <div class="card">
-            <h3>Upravljanje radnicima i PIN kodovima</h3>
+            <h3>Upravljanje radnicima, PIN kodovima i godišnjim odmorima</h3>
             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
                 <input type="text" id="newWorkerName" placeholder="Novo ime i prezime" style="margin-bottom:0;">
                 <input type="password" id="newWorkerPin" maxlength="4" placeholder="PIN (4 cifre)" style="width: 130px; margin-bottom:0;">
@@ -209,7 +209,8 @@
                         <tr>
                             <th>Radnik</th>
                             <th>PIN kod</th>
-                            <th>Akcija</th>
+                            <th>Godišnji odmor</th>
+                            <th>Akcije</th>
                         </tr>
                     </thead>
                     <tbody id="adminWorkersTableBody"></tbody>
@@ -244,7 +245,9 @@
                         <tr>
                             <th>Radnik</th>
                             <th>Datumi odmora</th>
-                            <th>Ukupno dana</th>
+                            <th>Ukupno pravo</th>
+                            <th>Iskorišćeno</th>
+                            <th>Preostalo</th>
                         </tr>
                     </thead>
                     <tbody id="vacationTableBody"></tbody>
@@ -281,6 +284,25 @@
                 </table>
             </div>
 
+            <!-- 5. BACKUP I GODIŠNJA ARHIVA -->
+            <h3 class="section-title">5. Backup baze i godišnja arhiva</h3>
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:12px; border-radius:8px;">
+                <p style="margin-top:0; font-size:13px;">Podaci se trenutno čuvaju u memoriji ovog internet pregledača (localStorage). Redovno izvozite backup fajl.</p>
+                <button class="secondary-btn" onclick="exportFullBackup()">Izvezi kompletnu bazu (JSON backup)</button>
+
+                <div style="display:flex; gap:8px; align-items:end; margin-top:12px; flex-wrap:wrap;">
+                    <div style="flex:1; min-width:140px;">
+                        <label for="exportYear">Godina za arhivu:</label>
+                        <input type="number" id="exportYear" min="2000" max="2100" style="margin-bottom:0;">
+                    </div>
+                    <button class="admin-btn" style="width:auto; margin-top:0;" onclick="exportYearBackup()">Izvezi godinu (JSON)</button>
+                    <button class="secondary-btn" style="width:auto; margin-top:0;" onclick="exportYearCSV()">Izvezi godinu (CSV)</button>
+                </div>
+
+                <input type="file" id="importBackupFile" accept="application/json,.json" class="hidden" onchange="importDatabaseBackup(event)">
+                <button class="secondary-btn" onclick="document.getElementById('importBackupFile').click()">Uvezi / vrati backup (JSON)</button>
+            </div>
+
             <button class="danger-btn" style="margin-top: 25px;" onclick="clearDatabase()">Obriši celu bazu unosa</button>
         </div>
     </div>
@@ -289,6 +311,7 @@
 
 <script>
     document.getElementById('workDate').valueAsDate = new Date();
+    document.getElementById('exportYear').value = new Date().getFullYear();
 
     const defaultWorkersData = {
         "Aleksandar Simic": "1111",
@@ -310,6 +333,24 @@
             return defaultWorkersData;
         }
         return JSON.parse(stored);
+    }
+
+    function getVacationEntitlements() {
+        return JSON.parse(localStorage.getItem('worker_vacation_entitlements_v4')) || {};
+    }
+
+    function updateVacationEntitlement(workerName, inputId) {
+        let value = parseInt(document.getElementById(inputId).value, 10);
+        if (isNaN(value) || value < 0) {
+            alert("Unesite ispravan ukupan broj dana godišnjeg odmora.");
+            loadDatabase();
+            return;
+        }
+
+        let entitlements = getVacationEntitlements();
+        entitlements[workerName] = value;
+        localStorage.setItem('worker_vacation_entitlements_v4', JSON.stringify(entitlements));
+        loadDatabase();
     }
 
     function populateWorkerDropdowns() {
@@ -337,13 +378,24 @@
         const adminWorkersBody = document.getElementById('adminWorkersTableBody');
         adminWorkersBody.innerHTML = '';
         
+        let vacationEntitlements = getVacationEntitlements();
+
         sortedNames.forEach((name, idx) => {
             let tr = document.createElement('tr');
+            let encodedName = encodeURIComponent(name);
+            let vacationDays = parseInt(vacationEntitlements[name], 10) || 0;
             tr.innerHTML = `
                 <td><b>${name}</b></td>
-                <td><input type="text" id="pin_input_${idx}" value="${workersData[name]}" maxlength="4" style="width: 80px; margin-bottom: 0;"></td>
                 <td>
-                    <button class="admin-btn" style="padding: 6px 10px; font-size: 12px; margin-top: 0;" onclick="updateWorkerPin('${name}', 'pin_input_${idx}')">Sačuvaj PIN</button>
+                    <input type="text" id="pin_input_${idx}" value="${workersData[name]}" maxlength="4" style="width: 80px; margin-bottom: 5px;">
+                    <button class="admin-btn" style="padding: 6px 10px; font-size: 12px; margin-top: 0;" onclick="updateWorkerPin(decodeURIComponent('${encodedName}'), 'pin_input_${idx}')">Sačuvaj PIN</button>
+                </td>
+                <td>
+                    <input type="number" min="0" step="1" id="worker_vacation_${idx}" value="${vacationDays}" style="width: 80px; margin-bottom: 5px;">
+                    <button class="admin-btn" style="padding: 6px 10px; font-size: 12px; margin-top: 0;" onclick="updateVacationEntitlement(decodeURIComponent('${encodedName}'), 'worker_vacation_${idx}')">Sačuvaj dane</button>
+                </td>
+                <td>
+                    <button class="danger-btn" style="padding: 6px 10px; font-size: 12px; margin-top: 0;" onclick="deleteWorker(decodeURIComponent('${encodedName}'))">Obriši radnika</button>
                 </td>
             `;
             adminWorkersBody.appendChild(tr);
@@ -387,6 +439,30 @@
         localStorage.setItem('allowed_workers_pins_v4', JSON.stringify(workersData));
         alert("PIN za radnika " + workerName + " je uspešno sačuvan!");
         populateWorkerDropdowns();
+    }
+
+    function deleteWorker(workerName) {
+        const confirmed = confirm(
+            "Da li ste sigurni da želite da uklonite radnika " + workerName + " sa aktivnog spiska?\n\n" +
+            "Njegovi raniji unosi radnih sati, godišnjih odmora, bolovanja i slobodnih dana NEĆE biti obrisani iz arhive."
+        );
+        if (!confirmed) return;
+
+        let workersData = getWorkersData();
+        delete workersData[workerName];
+        localStorage.setItem('allowed_workers_pins_v4', JSON.stringify(workersData));
+
+        let entitlements = getVacationEntitlements();
+        delete entitlements[workerName];
+        localStorage.setItem('worker_vacation_entitlements_v4', JSON.stringify(entitlements));
+
+        let rates = JSON.parse(localStorage.getItem('worker_rates_pins_v4')) || {};
+        delete rates[workerName];
+        localStorage.setItem('worker_rates_pins_v4', JSON.stringify(rates));
+
+        populateWorkerDropdowns();
+        loadDatabase();
+        alert("Radnik " + workerName + " je uklonjen sa aktivnog spiska. Istorijski podaci su sačuvani u arhivi.");
     }
 
     // Popunjavanje sati od 00 do 23
@@ -518,8 +594,11 @@
 
         let totalWorkHours = 0;
         let workDetails = "";
+        let monthlyWork = {};
         let vacationCount = 0;
         let vacationDetails = "";
+        let vacationEntitlements = getVacationEntitlements();
+        let vacationTotal = parseInt(vacationEntitlements[name], 10) || 0;
         let sickCount = 0;
         let sickDetails = "";
         let freeCount = 0;
@@ -530,6 +609,10 @@
         workerRecords.forEach(e => {
             if (e.workStatus === 'Radio') {
                 totalWorkHours += e.workHours;
+                let monthKey = e.workDate.substring(0, 7);
+                if (!monthlyWork[monthKey]) monthlyWork[monthKey] = { hours: 0, days: 0 };
+                monthlyWork[monthKey].hours += e.workHours;
+                monthlyWork[monthKey].days += 1;
                 workDetails += `<li>${e.workDate}: od ${e.timeIn} do ${e.timeOut} <b>(${e.workHours}h)</b></li>`;
             } else if (e.workStatus === 'Godišnji odmor') {
                 vacationCount++;
@@ -543,29 +626,51 @@
             }
         });
 
+        const monthNames = ["Januar", "Februar", "Mart", "April", "Maj", "Jun", "Jul", "Avgust", "Septembar", "Oktobar", "Novembar", "Decembar"];
+        let monthlyWorkHtml = Object.keys(monthlyWork).sort().map(key => {
+            let [year, month] = key.split('-');
+            let m = monthlyWork[key];
+            return `<div style="display:flex; justify-content:space-between; border-bottom:1px dashed #cbd5e1; padding:5px 0;">
+                <span><b>${monthNames[parseInt(month,10)-1]} ${year}</b></span>
+                <span>${m.days} radnih dana / <b>${m.hours} h</b></span>
+            </div>`;
+        }).join('') || '<div style="color:#64748b;">Nema mesečnih podataka.</div>';
+
         let html = `
             <div style="margin-bottom: 15px; background: #f1f5f9; padding: 10px; border-radius: 8px;">
                 <h4 style="margin: 0 0 5px 0; color: #1e40af;">Radni sati</h4>
-                <p style="margin: 0;">Ukupno odrađeno sati: <b>${totalWorkHours} h</b></p>
-                <ul style="margin: 5px 0 0 20px; padding: 0; font-size: 13px;">${workDetails || '<li>Nema unetih sati.</li>'}</ul>
+                <p style="margin: 0 0 8px 0;">Ukupno odrađeno sati: <b>${totalWorkHours} h</b></p>
+                <div style="background:white; border:1px solid #e2e8f0; padding:8px; border-radius:6px; margin-bottom:8px;">
+                    <b>Pregled po mesecima:</b>
+                    <div style="margin-top:5px; font-size:13px;">${monthlyWorkHtml}</div>
+                </div>
+                <details>
+                    <summary style="cursor:pointer; font-weight:600;">Prikaži sve pojedinačne radne dane</summary>
+                    <ul style="margin: 5px 0 0 20px; padding: 0; font-size: 13px;">${workDetails || '<li>Nema unetih sati.</li>'}</ul>
+                </details>
             </div>
 
             <div style="margin-bottom: 15px; background: #fefce8; padding: 10px; border-radius: 8px;">
                 <h4 style="margin: 0 0 5px 0; color: #854d0e;">Godišnji odmor</h4>
-                <p style="margin: 0;">Iskorišćeno dana odmora: <b>${vacationCount} dana</b></p>
-                <ul style="margin: 5px 0 0 20px; padding: 0; font-size: 13px;">${vacationDetails || '<li>Nema unetih odmora.</li>'}</ul>
+                <p style="margin: 0 0 4px 0;">Ukupno pravo: <b>${vacationTotal} dana</b></p>
+                <p style="margin: 0 0 4px 0;">Iskorišćeno: <b>${vacationCount} dana</b></p>
+                <p style="margin: 0;">Preostalo: <b>${Math.max(vacationTotal - vacationCount, 0)} dana</b></p>
+                <p style="margin: 8px 0 0 0;"><b>Pregled kada je korišćen godišnji odmor:</b></p>
+                <ul style="margin: 5px 0 0 20px; padding: 0; font-size: 13px;">${vacationDetails || '<li>Nema korišćenih dana godišnjeg odmora.</li>'}</ul>
             </div>
 
             <div style="margin-bottom: 15px; background: #fef2f2; padding: 10px; border-radius: 8px;">
                 <h4 style="margin: 0 0 5px 0; color: #991b1b;">Bolovanja</h4>
                 <p style="margin: 0;">Ukupno dana bolovanja: <b>${sickCount} dana</b></p>
-                <ul style="margin: 5px 0 0 20px; padding: 0; font-size: 13px;">${sickDetails || '<li>Nema unetih bolovanja.</li>'}</ul>
+                <p style="margin: 8px 0 0 0;"><b>Pregled kada je korišćeno bolovanje:</b></p>
+                <ul style="margin: 5px 0 0 20px; padding: 0; font-size: 13px;">${sickDetails || '<li>Nema korišćenih dana bolovanja.</li>'}</ul>
             </div>
 
             <div style="background: #f0fdf4; padding: 10px; border-radius: 8px;">
                 <h4 style="margin: 0 0 5px 0; color: #166534;">Slobodni dani</h4>
                 <p style="margin: 0;">Ukupno slobodnih dana: <b>${freeCount} dana</b></p>
-                <ul style="margin: 5px 0 0 20px; padding: 0; font-size: 13px;">${freeDetails || '<li>Nema unetih slobodnih dana.</li>'}</ul>
+                <p style="margin: 8px 0 0 0;"><b>Pregled kada je korišćen slobodan dan:</b></p>
+                <ul style="margin: 5px 0 0 20px; padding: 0; font-size: 13px;">${freeDetails || '<li>Nema korišćenih slobodnih dana.</li>'}</ul>
             </div>
         `;
 
@@ -599,14 +704,6 @@
         sickBody.innerHTML = '';
         freeBody.innerHTML = '';
 
-        if (allRecords.length === 0) {
-            workBody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Nema unetih podataka.</td></tr>`;
-            vacationBody.innerHTML = `<tr><td colspan="3" style="text-align:center;">Nema unetih podataka.</td></tr>`;
-            sickBody.innerHTML = `<tr><td colspan="3" style="text-align:center;">Nema unetih podataka.</td></tr>`;
-            freeBody.innerHTML = `<tr><td colspan="3" style="text-align:center;">Nema unetih podataka.</td></tr>`;
-            return;
-        }
-
         let workByWorker = {};
         let vacationByWorker = {};
         let sickByWorker = {};
@@ -639,18 +736,35 @@
             for (let [workerName, entries] of Object.entries(workByWorker)) {
                 let detailsHtml = "";
                 let totalHours = 0;
+                let monthlyGroups = {};
                 entries.sort((a, b) => new Date(a.workDate) - new Date(b.workDate));
 
                 entries.forEach(e => {
                     totalHours += e.workHours;
-                    detailsHtml += `
-                        <div style="margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #e2e8f0; padding-bottom: 4px;">
+                    let monthKey = e.workDate.substring(0, 7);
+                    if (!monthlyGroups[monthKey]) monthlyGroups[monthKey] = { hours: 0, days: 0, entries: [] };
+                    monthlyGroups[monthKey].hours += e.workHours;
+                    monthlyGroups[monthKey].days += 1;
+                    monthlyGroups[monthKey].entries.push(e);
+                });
+
+                const monthNamesAdmin = ["Januar", "Februar", "Mart", "April", "Maj", "Jun", "Jul", "Avgust", "Septembar", "Oktobar", "Novembar", "Decembar"];
+                Object.keys(monthlyGroups).sort().forEach(monthKey => {
+                    let [year, month] = monthKey.split('-');
+                    let group = monthlyGroups[monthKey];
+                    let dayRows = group.entries.map(e => `
+                        <div style="margin-bottom: 5px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px dashed #e2e8f0; padding:4px 0;">
                             <span>• ${e.workDate}: ${e.timeIn} - ${e.timeOut} <b>(${e.workHours}h)</b></span>
                             <div>
-                                <button onclick="editEntryHours(${e.globalIndex})" style="background: #2563eb; color: white; border: none; padding: 2px 5px; font-size: 11px; border-radius: 3px; cursor: pointer; margin-right: 3px;">Izmeni</button>
-                                <button onclick="deleteEntry(${e.globalIndex})" style="background: #dc2626; color: white; border: none; padding: 2px 5px; font-size: 11px; border-radius: 3px; cursor: pointer;">Obriši</button>
+                                <button onclick="editEntryHours(${e.globalIndex})" style="background:#2563eb;color:white;border:none;padding:2px 5px;font-size:11px;border-radius:3px;cursor:pointer;margin-right:3px;">Izmeni</button>
+                                <button onclick="deleteEntry(${e.globalIndex})" style="background:#dc2626;color:white;border:none;padding:2px 5px;font-size:11px;border-radius:3px;cursor:pointer;">Obriši</button>
                             </div>
-                        </div>`;
+                        </div>`).join('');
+                    detailsHtml += `
+                        <details style="margin-bottom:8px;" open>
+                            <summary style="cursor:pointer; font-weight:700; color:#1e40af;">${monthNamesAdmin[parseInt(month,10)-1]} ${year}: ${group.days} dana / ${group.hours} h</summary>
+                            <div style="padding-top:5px;">${dayRows}</div>
+                        </details>`;
                 });
 
                 let currentRate = rates[workerName] || 0;
@@ -678,10 +792,61 @@
             }
         }
 
-        // 2, 3, 4. Odsustva
-        fillAbsenceTable(vacationBody, vacationByWorker, "Godišnji odmor");
+        // 2. Godišnji odmor - admin podešava ukupno pravo, aplikacija računa iskorišćeno i preostalo
+        fillVacationTable(vacationBody, vacationByWorker);
+
+        // 3. i 4. Ostala odsustva
         fillAbsenceTable(sickBody, sickByWorker, "Bolovanje");
         fillAbsenceTable(freeBody, freeByWorker, "Slobodan dan");
+    }
+
+    function fillVacationTable(tbodyElement, vacationByWorker) {
+        let workersData = getWorkersData();
+        let entitlements = getVacationEntitlements();
+        let workerNames = Object.keys(workersData).sort();
+
+        tbodyElement.innerHTML = '';
+
+        if (workerNames.length === 0) {
+            tbodyElement.innerHTML = `<tr><td colspan="5" style="text-align:center;">Nema radnika na spisku.</td></tr>`;
+            return;
+        }
+
+        workerNames.forEach((workerName, idx) => {
+            let entries = vacationByWorker[workerName] || [];
+            entries.sort((a, b) => new Date(a.workDate) - new Date(b.workDate));
+
+            let detailsHtml = '';
+            entries.forEach(e => {
+                detailsHtml += `
+                    <div style="margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center;">
+                        <span>• ${e.workDate}</span>
+                        <button onclick="deleteEntry(${e.globalIndex})" style="background: #dc2626; color: white; border: none; padding: 2px 5px; font-size: 11px; border-radius: 3px; cursor: pointer;">Obriši</button>
+                    </div>`;
+            });
+
+            if (!detailsHtml) {
+                detailsHtml = '<span style="color:#64748b;">Nema iskorišćenih dana.</span>';
+            }
+
+            let totalAllowed = parseInt(entitlements[workerName], 10) || 0;
+            let used = entries.length;
+            let remaining = Math.max(totalAllowed - used, 0);
+            let inputId = `vacation_total_${idx}`;
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><b>${workerName}</b></td>
+                <td>${detailsHtml}</td>
+                <td>
+                    <input type="number" min="0" step="1" id="${inputId}" value="${totalAllowed}" style="width: 75px; margin: 0 0 5px 0;">
+                    <button class="admin-btn" onclick="updateVacationEntitlement('${workerName}', '${inputId}')" style="padding: 5px 7px; font-size: 11px; margin-top: 0;">Sačuvaj</button>
+                </td>
+                <td><b>${used} dana</b></td>
+                <td><b>${remaining} dana</b></td>
+            `;
+            tbodyElement.appendChild(tr);
+        });
     }
 
     function fillAbsenceTable(tbodyElement, dataByWorker, titleName) {
@@ -774,6 +939,91 @@
         rates[workerName] = newRate;
         localStorage.setItem('worker_rates_pins_v4', JSON.stringify(rates));
         loadDatabase();
+    }
+
+    function downloadTextFile(filename, content, mimeType) {
+        const blob = new Blob([content], { type: mimeType || 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function buildBackup(records) {
+        return {
+            app: 'Evidencija Radnog Vremena i Odsustva',
+            version: 5,
+            exportedAt: new Date().toISOString(),
+            records: records,
+            workers: getWorkersData(),
+            rates: JSON.parse(localStorage.getItem('worker_rates_pins_v4')) || {},
+            vacationEntitlements: getVacationEntitlements()
+        };
+    }
+
+    function exportFullBackup() {
+        const records = JSON.parse(localStorage.getItem('split_db_pins_v4')) || [];
+        const backup = buildBackup(records);
+        const date = new Date().toISOString().slice(0, 10);
+        downloadTextFile(`evidencija-kompletan-backup-${date}.json`, JSON.stringify(backup, null, 2), 'application/json;charset=utf-8');
+    }
+
+    function exportYearBackup() {
+        const year = parseInt(document.getElementById('exportYear').value, 10);
+        if (!year) return alert('Unesite godinu za izvoz.');
+        const allRecords = JSON.parse(localStorage.getItem('split_db_pins_v4')) || [];
+        const records = allRecords.filter(r => String(r.workDate || '').startsWith(year + '-'));
+        const backup = buildBackup(records);
+        backup.archiveYear = year;
+        downloadTextFile(`evidencija-${year}.json`, JSON.stringify(backup, null, 2), 'application/json;charset=utf-8');
+    }
+
+    function csvEscape(value) {
+        const text = String(value ?? '');
+        return '"' + text.replace(/"/g, '""') + '"';
+    }
+
+    function exportYearCSV() {
+        const year = parseInt(document.getElementById('exportYear').value, 10);
+        if (!year) return alert('Unesite godinu za izvoz.');
+        const allRecords = JSON.parse(localStorage.getItem('split_db_pins_v4')) || [];
+        const records = allRecords.filter(r => String(r.workDate || '').startsWith(year + '-'));
+        const header = ['Radnik','Datum','Status','Dolazak','Odlazak','Radni sati','Vreme unosa'];
+        const rows = records.map(r => [r.workerName, r.workDate, r.workStatus, r.timeIn || '', r.timeOut || '', r.workHours || 0, r.timestamp || '']);
+        const csv = '\uFEFF' + [header, ...rows].map(row => row.map(csvEscape).join(';')).join('\r\n');
+        downloadTextFile(`evidencija-${year}.csv`, csv, 'text/csv;charset=utf-8');
+    }
+
+    function importDatabaseBackup(event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function() {
+            try {
+                const data = JSON.parse(reader.result);
+                if (!data || !Array.isArray(data.records)) throw new Error('Neispravan backup fajl.');
+                if (!confirm('Uvoz backupa će zameniti trenutne podatke u ovoj aplikaciji. Nastaviti?')) return;
+
+                localStorage.setItem('split_db_pins_v4', JSON.stringify(data.records || []));
+                if (data.workers && typeof data.workers === 'object') localStorage.setItem('allowed_workers_pins_v4', JSON.stringify(data.workers));
+                if (data.rates && typeof data.rates === 'object') localStorage.setItem('worker_rates_pins_v4', JSON.stringify(data.rates));
+                if (data.vacationEntitlements && typeof data.vacationEntitlements === 'object') localStorage.setItem('worker_vacation_entitlements_v4', JSON.stringify(data.vacationEntitlements));
+
+                populateWorkerDropdowns();
+                loadDatabase();
+                alert('Backup je uspešno učitan.');
+            } catch (err) {
+                alert('Greška pri uvozu: ' + err.message);
+            } finally {
+                event.target.value = '';
+            }
+        };
+        reader.readAsText(file, 'utf-8');
     }
 
     function clearDatabase() {
