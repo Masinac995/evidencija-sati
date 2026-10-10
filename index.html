@@ -35,7 +35,7 @@
 
   <section id="card" class="card hidden">
     <h2>Moja kartica</h2>
-    <div class="grid"><div><label>Radnik</label><select id="cardWorker"><option value="">-- Izaberite --</option></select></div><div><label>PIN</label><input id="cardPin" type="password" inputmode="numeric" maxlength="4"></div><div><label>Mesec obračuna</label><input id="cardMonth" type="month"></div></div>
+    <div class="grid"><div><label>Radnik</label><select id="cardWorker"><option value="">-- Izaberite --</option></select></div><div><label>PIN</label><input id="cardPin" type="password" inputmode="numeric" maxlength="4"></div></div>
     <button class="full gray" onclick="loadWorkerCard()">Prikaži karticu</button>
     <div id="cardResult"></div>
   </section>
@@ -58,7 +58,7 @@
   </section>
   <section class="card">
     <details><summary>Kako se koristi i šta znače Excel, CSV i JSON?</summary>
-      <ol><li>Radnik izabere svoje ime, unese PIN, datum, status i vreme, pa sačuva unos.</li><li>U „Moja kartica” bira mesec i vidi samo svoje sate za taj mesec.</li><li>Admin bira mesec i dobija tabelu i obračun za sve radnike.</li><li>Na kraju meseca kliknite <b>Preuzmi konačnu Excel tabelu</b>. Fajl je lepo formatiran i spreman za čuvanje, štampu ili slanje knjigovođi.</li><li><b>CSV</b> je jednostavna tabela bez boja i formatiranja; otvara se u Excelu i pogodna je za dalju obradu.</li><li><b>JSON</b> je kompletna rezervna kopija cele evidencije. Služi za vraćanje podataka ako promenite računar ili pregledač.</li></ol>
+      <ol><li>Radnik izabere svoje ime, unese PIN, datum, status i vreme, pa sačuva unos.</li><li>U „Moja kartica” vidi tekući mesec sa dnevnim unosima i zbir prethodnog završenog meseca.</li><li>Admin bira mesec i dobija tabelu i obračun za sve radnike.</li><li>Na kraju meseca kliknite <b>Preuzmi konačnu Excel tabelu</b>. Fajl je lepo formatiran i spreman za čuvanje, štampu ili slanje knjigovođi.</li><li><b>CSV</b> je jednostavna tabela bez boja i formatiranja; otvara se u Excelu i pogodna je za dalju obradu.</li><li><b>JSON</b> je kompletna rezervna kopija cele evidencije. Služi za vraćanje podataka ako promenite računar ili pregledač.</li></ol>
       <p><b>Važno:</b> ne brišite podatke pregledača pre nego što sačuvate JSON kopiju. GitHub Pages besplatno prikazuje aplikaciju, ali ne čuva vaše radne sate.</p>
     </details>
   </section>

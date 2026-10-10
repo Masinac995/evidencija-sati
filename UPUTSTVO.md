@@ -19,7 +19,7 @@ Ako želite da prebacite podatke iz stare centralne baze, u administraciji izabe
 
 Radnik na strani **Unos** bira svoje ime, unosi PIN, datum, status i vreme dolaska/odlaska. Za isti datum i istog radnika novi unos ispravlja prethodni.
 
-U **Moja kartica** radnik bira mesec i vidi samo svoju evidenciju i zbir sati za taj mesec.
+U **Moja kartica** radnik odmah vidi tekući mesec sa svim dnevnim unosima. Ispod toga stoji sažetak prethodnog završenog meseca: broj radnih dana, radni sati, godišnji odmor, bolovanje i slobodni dani.
 
 ## Mesečni presek
 
