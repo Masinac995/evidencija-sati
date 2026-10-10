@@ -52,5 +52,5 @@
     return zip(files);
   }
   function download(month,workers,records){const bytes=build(month,workers,records),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));a.download=`evidencija-radnih-sati-${month}.xlsx`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
-  return {build,download};
+  return {build,download,zip};
 });

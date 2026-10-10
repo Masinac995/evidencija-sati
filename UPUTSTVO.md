@@ -25,7 +25,9 @@ U **Moja kartica** radnik odmah vidi tekući mesec sa svim dnevnim unosima. Ispo
 
 Admin bira mesec strelicama ili kalendarom. Svaki mesec ima zasebnu evidenciju i sažetak. Kada se aplikacija prvi put otvori u novom mesecu, svi raniji meseci automatski se pojavljuju u delu **Završeni meseci**.
 
-Pregledač ne može sam da upiše fajl u proizvoljan folder dok je aplikacija zatvorena. Zato se arhiva pravi automatski unutar aplikacije, a Excel ili CSV se preuzima jednim klikom kada želite da ga sačuvate na računaru.
+Pregledač ne može sam da upiše fajl u proizvoljan folder dok je aplikacija zatvorena. Zato se arhiva pravi automatski unutar aplikacije. Dugme **Sačuvaj mesečnu evidenciju** jednim klikom preuzima ZIP paket sa Excelom, CSV tabelom i kompletnom JSON kopijom.
+
+Na Windows računaru paket se obično čuva u `C:\Users\masinac\Downloads`, odnosno u folderu **Preuzimanja**. Ako je pregledač podešen da pita gde treba sačuvati svaki fajl, sami birate folder.
 
 ## Excel, CSV i JSON
 
@@ -38,9 +40,9 @@ Pregledač ne može sam da upiše fajl u proizvoljan folder dok je aplikacija za
 Na kraju svakog meseca:
 
 1. Izaberite završeni mesec.
-2. Preuzmite konačnu Excel tabelu.
-3. Preuzmite kompletnu JSON kopiju.
-4. Sačuvajte oba fajla u folder, na primer `Evidencija sati/2026/10 - oktobar`.
-5. Po želji kopirajte taj folder i na USB ili drugi disk.
+2. Kliknite **Sačuvaj mesečnu evidenciju**.
+3. U folderu Downloads pronađite fajl, na primer `MASINAC-evidencija-2026-10.zip`.
+4. Premestite ZIP u folder, na primer `Evidencija sati/2026/10 - oktobar`.
+5. Po želji kopirajte ZIP i na USB ili drugi disk.
 
 JSON kopiju sačuvajte i posle većih izmena radnika ili ispravki evidencije.
