@@ -68,6 +68,9 @@
     }else if(fn==='admin_deactivate_worker'){
       const worker=data.workers.find(w=>w.worker_name===p.p_worker_name);if(worker)worker.active=false;
     }else if(fn==='admin_delete_record')data.records=data.records.filter(r=>r.id!==Number(p.p_record_id));
+    else if(fn==='admin_delete_month'){
+      const key=String(p.p_month||'');if(!/^\d{4}-\d{2}$/.test(key))throw new Error('Mesec nije ispravan.');if(key>=currentMonth())throw new Error('Tekući ili budući mesec ne može biti obrisan kao arhiva.');data.records=data.records.filter(r=>monthKey(r.work_date)!==key);delete data.archives[key];
+    }
     else throw new Error('Nepoznata lokalna operacija: '+fn);
     write(rebuildArchives(data));return {ok:true};
   }

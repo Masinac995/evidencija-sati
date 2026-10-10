@@ -23,6 +23,8 @@ const store=require('./local-store.js');
   assert.equal(store.listArchives().find(a=>a.month==='2025-09').workers[0].hourly_rate,oldRate);
   const backup=store.exportBackup();assert.equal(backup.schema_version,3);assert.equal(backup.data.records.length,2);assert.equal(Object.values(backup.data.archives).some(a=>Object.hasOwn(a,'records')),false);
   assert.equal(store.storageStats().records,2);assert.ok(store.storageStats().estimated_bytes>0);
+  await store.rpc('admin_delete_month',{p_admin_password:'tajna123',p_month:'2025-09'});assert.equal((await store.rpc('admin_snapshot',{p_admin_password:'tajna123'})).records.length,1);assert.equal(store.listArchives().some(a=>a.month==='2025-09'),false);
+  await assert.rejects(()=>store.rpc('admin_delete_month',{p_admin_password:'tajna123',p_month:global.MonthlyHours.currentMonth()}),/ne može biti obrisan/);
   await store.importBackup({workers:[{worker_name:'Stari radnik',hourly_rate:400,vacation_days:20,active:true}],records:[]},'tajna123');
   await assert.rejects(()=>store.rpc('worker_card',{p_worker_name:'Stari radnik',p_pin:'4321'}),/prvo postavite novi PIN/);
   await store.adoptLegacyPin('Stari radnik','4321');

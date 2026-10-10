@@ -51,3 +51,5 @@ JSON kopiju sačuvajte i posle većih izmena radnika ili ispravki evidencije.
 ## Kada se memorija napuni
 
 Administracija prikazuje procenjeno zauzeće memorije. Kada se lokalna memorija napuni, postojeći podaci ostaju sačuvani, ali pregledač odbija nove unose. Aplikacija ne briše stare mesece automatski. Pre oslobađanja prostora prvo sačuvajte kompletan mesečni ZIP i JSON kopiju na disk F. Za trajnu evidenciju dužu od nekoliko godina preporučuje se centralna baza uz iste mesečne kopije.
+
+Završeni mesec može ručno da se obriše dugmetom **Obriši mesec**. Aplikacija traži potvrdu i ne dozvoljava brisanje tekućeg meseca. Pre brisanja obavezno sačuvajte mesečni ZIP paket na disk F, jer se brisanje ne može poništiti bez JSON kopije.
