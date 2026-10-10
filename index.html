@@ -6,13 +6,14 @@
   <title>MASINAC PLUS – Evidencija sati</title>
   <style>
     :root{--p:#2563eb;--g:#059669;--r:#dc2626;--bg:#f8fafc;--card:#fff;--text:#1e293b;--muted:#64748b;--border:#e2e8f0}
-    *{box-sizing:border-box}body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);margin:0;padding:15px}.container{max-width:850px;margin:auto}h1,h2,h3{text-align:center;color:var(--p)}h1{font-size:23px}.card{background:var(--card);border-radius:12px;padding:16px;margin:15px 0;box-shadow:0 4px 12px #0f172a14}label{display:block;font-weight:650;margin:9px 0 5px;font-size:14px}input,select{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:16px;background:#fff}button{background:var(--p);color:#fff;border:0;border-radius:8px;padding:11px 13px;font-size:15px;font-weight:700;cursor:pointer;margin-top:10px}button.green{background:var(--g)}button.red{background:var(--r)}button.gray{background:#475569}.full{width:100%}.hidden{display:none!important}.nav{text-align:center;margin:12px}.nav button{width:auto;margin:3px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.notice{border-radius:8px;padding:10px;font-size:14px}.info{background:#eff6ff;border:1px solid #bfdbfe}.ok{background:#f0fdf4;border:1px solid #bbf7d0}.err{background:#fef2f2;border:1px solid #fecaca}.muted{color:var(--muted);font-size:13px}.scroll{overflow:auto}table{width:100%;border-collapse:collapse;font-size:13px}th,td{border:1px solid var(--border);padding:8px;text-align:left;vertical-align:top}th{background:#eff6ff}.inline{display:flex;gap:8px;align-items:end}.inline>*{flex:1}.small{width:auto;padding:6px 8px;font-size:12px;margin:2px}.month{font-weight:700;color:#1e40af;margin-top:8px}.status{position:sticky;top:8px;z-index:2}.spinner{opacity:.65;pointer-events:none}@media(max-width:620px){.grid{grid-template-columns:1fr}.inline{display:block}body{padding:9px}th,td{padding:6px}}
+    *{box-sizing:border-box}body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);margin:0;padding:15px}.container{max-width:850px;margin:auto}h1,h2,h3{text-align:center;color:var(--p)}h1{font-size:23px}.card{background:var(--card);border-radius:12px;padding:16px;margin:15px 0;box-shadow:0 4px 12px #0f172a14}label{display:block;font-weight:650;margin:9px 0 5px;font-size:14px}input,select{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:16px;background:#fff}button{background:var(--p);color:#fff;border:0;border-radius:8px;padding:11px 13px;font-size:15px;font-weight:700;cursor:pointer;margin-top:10px}button.green{background:var(--g)}button.red{background:var(--r)}button.gray{background:#475569}.full{width:100%}.hidden{display:none!important}.nav{text-align:center;margin:12px}.nav button{width:auto;margin:3px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.notice{border-radius:8px;padding:10px;font-size:14px}.info{background:#eff6ff;border:1px solid #bfdbfe}.ok{background:#f0fdf4;border:1px solid #bbf7d0}.err{background:#fef2f2;border:1px solid #fecaca}.muted{color:var(--muted);font-size:13px}.scroll{overflow:auto}table{width:100%;border-collapse:collapse;font-size:13px}th,td{border:1px solid var(--border);padding:8px;text-align:left;vertical-align:top}th{background:#eff6ff}.inline{display:flex;gap:8px;align-items:end}.inline>*{flex:1}.small{width:auto;padding:6px 8px;font-size:12px;margin:2px}.month{font-weight:700;color:#1e40af;margin-top:8px}.status{position:sticky;top:8px;z-index:2}.spinner{opacity:.65;pointer-events:none}.warning{background:#fffbeb;border:1px solid #fde68a}.tag{font-size:11px;background:#e2e8f0;border-radius:10px;padding:2px 6px}.archive-row{display:grid;grid-template-columns:2fr 1fr auto auto;gap:8px;align-items:center;padding:8px;border-bottom:1px solid var(--border)}details summary{font-weight:700;cursor:pointer;color:#1e40af}li{margin:7px 0}@media(max-width:620px){.grid{grid-template-columns:1fr}.inline{display:block}.archive-row{grid-template-columns:1fr auto auto}body{padding:9px}th,td{padding:6px}}
   </style>
 </head>
 <body>
 <main class="container">
   <h1>MASINAC PLUS – Evidencija radnog vremena</h1>
-  <div id="status" class="notice info status">Povezivanje sa bazom…</div>
+  <div id="status" class="notice info status">Pokretanje lokalne evidencije…</div>
+  <div class="notice warning"><b>Podaci se čuvaju samo u ovom pregledaču na ovom uređaju.</b> Na kraju meseca preuzmite Excel tabelu i JSON kopiju.</div>
   <nav class="nav">
     <button onclick="show('entry')">Unos</button>
     <button class="gray" onclick="show('card')">Moja kartica</button>
@@ -29,12 +30,12 @@
       <div class="time"><label>Dolazak</label><select id="timeIn"></select></div>
       <div class="time"><label>Odlazak</label><select id="timeOut"></select></div>
     </div>
-    <button class="full" onclick="submitEntry()">Sačuvaj u centralnu bazu</button>
+    <button class="full" onclick="submitEntry()">Sačuvaj unos</button>
   </section>
 
   <section id="card" class="card hidden">
     <h2>Moja kartica</h2>
-    <div class="grid"><div><label>Radnik</label><select id="cardWorker"><option value="">-- Izaberite --</option></select></div><div><label>PIN</label><input id="cardPin" type="password" inputmode="numeric" maxlength="4"></div></div>
+    <div class="grid"><div><label>Radnik</label><select id="cardWorker"><option value="">-- Izaberite --</option></select></div><div><label>PIN</label><input id="cardPin" type="password" inputmode="numeric" maxlength="4"></div><div><label>Mesec obračuna</label><input id="cardMonth" type="month"></div></div>
     <button class="full gray" onclick="loadWorkerCard()">Prikaži karticu</button>
     <div id="cardResult"></div>
   </section>
@@ -43,78 +44,29 @@
     <div class="card">
       <h2>Administracija</h2>
       <div class="inline"><div><label>Admin lozinka</label><input id="adminPassword" type="password"></div><button class="green" onclick="loadAdmin()">Osveži bazu</button></div>
-      <p class="muted">Lozinka se ne čuva u telefonu niti u ovom HTML fajlu.</p>
+      <div class="inline"><button class="gray" onclick="changeAdminMonth(-1)">← Prethodni</button><div><label>Mesec obračuna</label><input id="adminMonth" type="month" onchange="renderAdmin()"></div><button class="gray" onclick="changeAdminMonth(1)">Sledeći →</button><button class="gray" onclick="setCurrentAdminMonth()">Tekući mesec</button></div>
+      <p class="muted">Pri prvom ulasku unesena lozinka postaje lokalna admin lozinka. Zapamtite je.</p>
     </div>
     <div id="adminContent" class="hidden">
       <div class="card"><h3>Dodaj radnika</h3><div class="grid"><input id="newName" placeholder="Ime i prezime"><input id="newPin" type="password" inputmode="numeric" maxlength="4" placeholder="PIN"><input id="newVacation" type="number" min="0" value="20" placeholder="Dani odmora"><button class="green" onclick="saveWorker()">Dodaj radnika</button></div></div>
-      <div class="card"><h3>Radnici</h3><div class="scroll"><table><thead><tr><th>Radnik</th><th>Cena/sat</th><th>Odmor</th><th>Akcije</th></tr></thead><tbody id="workersBody"></tbody></table></div></div>
-      <div class="card"><h3>Evidencija</h3><div class="inline"><button class="gray" onclick="exportCSV()">Izvezi CSV</button><button class="gray" onclick="exportJSON()">Izvezi JSON backup</button></div><div class="scroll"><table><thead><tr><th>Radnik</th><th>Datum</th><th>Status</th><th>Vreme / sati</th><th></th></tr></thead><tbody id="recordsBody"></tbody></table></div></div>
-      <div class="card"><h3>Sažetak</h3><div id="summary"></div></div>
+      <div class="card"><h3>Radnici</h3><div class="scroll"><table><thead><tr><th>Radnik</th><th>Cena/sat</th><th>Odmor</th><th>Novi PIN</th><th>Akcije</th></tr></thead><tbody id="workersBody"></tbody></table></div></div>
+      <div class="card"><h3 id="recordsTitle">Evidencija</h3><div class="inline"><button class="green" onclick="exportExcel()">Preuzmi konačnu Excel tabelu</button><button class="gray" onclick="exportCSV()">Preuzmi CSV</button><button class="gray" onclick="exportJSON()">Sačuvaj kompletnu JSON kopiju</button></div><div class="scroll"><table><thead><tr><th>Radnik</th><th>Datum</th><th>Status</th><th>Vreme / sati</th><th></th></tr></thead><tbody id="recordsBody"></tbody></table></div></div>
+      <div class="card"><h3 id="summaryTitle">Mesečni sažetak</h3><div id="summary"></div></div>
+      <div class="card"><h3>Završeni meseci</h3><p class="muted">Kada prvi put otvorite aplikaciju u novom mesecu, prethodni mesec se automatski čuva u ovu arhivu.</p><div id="archives"></div></div>
+      <div class="card"><h3>Rezervna kopija i prelazak</h3><div class="inline"><button class="gray" onclick="chooseJSON()">Uvezi JSON kopiju</button><button class="gray" onclick="importLegacy()">Jednom uvezi staru centralnu bazu</button></div><input id="jsonFile" class="hidden" type="file" accept=".json,application/json" onchange="importJSON(this)"><p class="muted">Posle uvoza stare baze postavite novi PIN svakom radniku.</p></div>
     </div>
+  </section>
+  <section class="card">
+    <details><summary>Kako se koristi i šta znače Excel, CSV i JSON?</summary>
+      <ol><li>Radnik izabere svoje ime, unese PIN, datum, status i vreme, pa sačuva unos.</li><li>U „Moja kartica” bira mesec i vidi samo svoje sate za taj mesec.</li><li>Admin bira mesec i dobija tabelu i obračun za sve radnike.</li><li>Na kraju meseca kliknite <b>Preuzmi konačnu Excel tabelu</b>. Fajl je lepo formatiran i spreman za čuvanje, štampu ili slanje knjigovođi.</li><li><b>CSV</b> je jednostavna tabela bez boja i formatiranja; otvara se u Excelu i pogodna je za dalju obradu.</li><li><b>JSON</b> je kompletna rezervna kopija cele evidencije. Služi za vraćanje podataka ako promenite računar ili pregledač.</li></ol>
+      <p><b>Važno:</b> ne brišite podatke pregledača pre nego što sačuvate JSON kopiju. GitHub Pages besplatno prikazuje aplikaciju, ali ne čuva vaše radne sate.</p>
+    </details>
   </section>
 </main>
 
-<script>
-// Posle pravljenja Supabase projekta, ovde nalepite Project URL i anon public key.
-const SUPABASE_URL = 'https://hzzlmnsubsrwaqhvugcv.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_HDT3J5jQchOUM083dcpYow_UoB9ZU9q';
-let adminData = {workers:[], records:[]};
-
-const el=id=>document.getElementById(id);
-const configured=()=>SUPABASE_URL.startsWith('https://')&&!SUPABASE_ANON_KEY.startsWith('OVDE_');
-function message(text,type='info'){el('status').className='notice status '+type;el('status').textContent=text}
-function busy(on){document.body.classList.toggle('spinner',on)}
-function show(id){['entry','card','admin'].forEach(x=>el(x).classList.toggle('hidden',x!==id));if(id==='card')el('cardResult').innerHTML=''}
-function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-async function rpc(fn,params={}){
-  if(!configured())throw new Error('Aplikacija još nije povezana sa Supabase bazom. Unesite URL i anon key u HTML fajl.');
-  const response=await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{method:'POST',headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${SUPABASE_ANON_KEY}`,'Content-Type':'application/json'},body:JSON.stringify(params)});
-  const raw=await response.text();let data=null;try{data=raw?JSON.parse(raw):null}catch{data=raw}
-  if(!response.ok)throw new Error(data?.message||data?.error||raw||'Greška u komunikaciji sa bazom.');return data;
-}
-function fillHours(){for(let h=0;h<24;h++){const v=String(h).padStart(2,'0')+':00';el('timeIn').add(new Option(v,v,false,h===7));el('timeOut').add(new Option(v,v,false,h===15))}}
-function toggleTimes(){document.querySelectorAll('.time').forEach(x=>x.classList.toggle('hidden',el('workStatus').value!=='Radio'))}
-async function loadWorkers(){
-  try{busy(true);const rows=await rpc('public_workers');['worker','cardWorker'].forEach(id=>{const s=el(id);s.innerHTML='<option value="">-- Izaberite --</option>';rows.forEach(r=>s.add(new Option(r.worker_name,r.worker_name)))});message('Povezano sa centralnom bazom.','ok')}
-  catch(e){message(e.message,'err')}finally{busy(false)}
-}
-async function submitEntry(){
-  const name=el('worker').value,pin=el('entryPin').value,date=el('date').value,status=el('workStatus').value;
-  if(!name||!/^[0-9]{4}$/.test(pin)||!date)return alert('Izaberite radnika, datum i unesite tačan četvorocifreni PIN.');
-  try{busy(true);const r=await rpc('submit_work_record',{p_worker_name:name,p_pin:pin,p_work_date:date,p_status:status,p_time_in:status==='Radio'?el('timeIn').value:null,p_time_out:status==='Radio'?el('timeOut').value:null});message(r.message||'Podatak je sačuvan.','ok');el('entryPin').value='';alert(r.message||'Podatak je sačuvan u centralnoj bazi.')}
-  catch(e){message(e.message,'err');alert(e.message)}finally{busy(false)}
-}
-async function loadWorkerCard(){
-  const name=el('cardWorker').value,pin=el('cardPin').value;if(!name||!/^[0-9]{4}$/.test(pin))return alert('Izaberite ime i unesite PIN.');
-  try{busy(true);const d=await rpc('worker_card',{p_worker_name:name,p_pin:pin});const rec=d.records||[];const work=rec.filter(r=>r.work_status==='Radio');const hours=work.reduce((s,r)=>s+Number(r.work_hours||0),0);const used=rec.filter(r=>r.work_status==='Godišnji odmor').length;
-    el('cardResult').innerHTML=`<div class="notice ok" style="margin-top:15px"><b>${esc(name)}</b><br>Ukupno radnih sati: <b>${hours}</b><br>Godišnji odmor: iskorišćeno <b>${used}</b>, preostalo <b>${Math.max(Number(d.vacation_days||0)-used,0)}</b></div>${recordsTable(rec,false)}`;el('cardPin').value='';message('Kartica je učitana.','ok')}
-  catch(e){el('cardResult').innerHTML='';message(e.message,'err');alert(e.message)}finally{busy(false)}
-}
-function openAdmin(){show('admin');el('adminPassword').focus()}
-async function loadAdmin(){
-  const pass=el('adminPassword').value;if(!pass)return alert('Unesite admin lozinku.');
-  try{busy(true);adminData=await rpc('admin_snapshot',{p_admin_password:pass});renderAdmin();el('adminContent').classList.remove('hidden');message('Centralna baza je osvežena.','ok')}
-  catch(e){el('adminContent').classList.add('hidden');message(e.message,'err');alert(e.message)}finally{busy(false)}
-}
-function adminPass(){return el('adminPassword').value}
-function renderAdmin(){
-  el('workersBody').innerHTML=(adminData.workers||[]).map((w,i)=>`<tr><td><b>${esc(w.worker_name)}</b></td><td><input id="rate${i}" type="number" step="0.01" value="${Number(w.hourly_rate||0)}"></td><td><input id="vac${i}" type="number" min="0" value="${Number(w.vacation_days||0)}"></td><td><button class="small green" onclick="updateWorker('${encodeURIComponent(w.worker_name)}',${i})">Sačuvaj</button><button class="small red" onclick="removeWorker('${encodeURIComponent(w.worker_name)}')">Ukloni</button></td></tr>`).join('');
-  el('recordsBody').innerHTML=(adminData.records||[]).map(r=>`<tr><td>${esc(r.worker_name)}</td><td>${esc(r.work_date)}</td><td>${esc(r.work_status)}</td><td>${r.work_status==='Radio'?`${esc(r.time_in)}–${esc(r.time_out)} (${Number(r.work_hours)} h`:''}</td><td><button class="small red" onclick="removeRecord(${Number(r.id)})">Obriši</button></td></tr>`).join('')||'<tr><td colspan="5">Nema podataka.</td></tr>';
-  renderSummary();
-}
-function renderSummary(){const map={};(adminData.records||[]).forEach(r=>{map[r.worker_name]??={hours:0,work:0,vac:0,sick:0,free:0};const x=map[r.worker_name];if(r.work_status==='Radio'){x.hours+=Number(r.work_hours||0);x.work++}else if(r.work_status==='Godišnji odmor')x.vac++;else if(r.work_status==='Bolovanje')x.sick++;else x.free++});el('summary').innerHTML='<div class="scroll"><table><thead><tr><th>Radnik</th><th>Radni dani</th><th>Sati</th><th>Plata</th><th>Odmor</th><th>Bolovanje</th><th>Slobodno</th></tr></thead><tbody>'+Object.entries(map).map(([n,x])=>{const w=(adminData.workers||[]).find(q=>q.worker_name===n)||{};return `<tr><td>${esc(n)}</td><td>${x.work}</td><td>${x.hours}</td><td>${(x.hours*Number(w.hourly_rate||0)).toFixed(2)}</td><td>${x.vac}</td><td>${x.sick}</td><td>${x.free}</td></tr>`}).join('')+'</tbody></table></div>'}
-async function saveWorker(){const n=el('newName').value.trim(),p=el('newPin').value,v=Number(el('newVacation').value||0);if(!n||!/^[0-9]{4}$/.test(p))return alert('Unesite ime i PIN od 4 cifre.');await adminAction('admin_save_worker',{p_worker_name:n,p_pin:p,p_hourly_rate:0,p_vacation_days:v},'Radnik je dodat.');el('newName').value='';el('newPin').value=''}
-async function updateWorker(encoded,i){await adminAction('admin_update_worker',{p_worker_name:decodeURIComponent(encoded),p_hourly_rate:Number(el('rate'+i).value||0),p_vacation_days:Number(el('vac'+i).value||0)},'Podaci su sačuvani.')}
-async function removeWorker(encoded){const n=decodeURIComponent(encoded);if(confirm(`Ukloniti radnika ${n}? Ranija evidencija ostaje sačuvana.`))await adminAction('admin_deactivate_worker',{p_worker_name:n},'Radnik je uklonjen sa aktivnog spiska.')}
-async function removeRecord(id){if(confirm('Obrisati ovaj unos?'))await adminAction('admin_delete_record',{p_record_id:id},'Unos je obrisan.')}
-async function adminAction(fn,params,msg){try{busy(true);await rpc(fn,{p_admin_password:adminPass(),...params});message(msg,'ok');await loadAdmin()}catch(e){message(e.message,'err');alert(e.message)}finally{busy(false)}}
-function recordsTable(rows){return `<div class="scroll" style="margin-top:12px"><table><thead><tr><th>Datum</th><th>Status</th><th>Vreme</th><th>Sati</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.work_date)}</td><td>${esc(r.work_status)}</td><td>${r.work_status==='Radio'?`${esc(r.time_in)}–${esc(r.time_out)}`:''}</td><td>${Number(r.work_hours||0)}</td></tr>`).join('')||'<tr><td colspan="4">Nema unosa.</td></tr>'}</tbody></table></div>`}
-function download(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
-function exportJSON(){download(`evidencija-backup-${new Date().toISOString().slice(0,10)}.json`,JSON.stringify(adminData,null,2),'application/json')}
-function csvCell(v){return '"'+String(v??'').replace(/"/g,'""')+'"'}
-function exportCSV(){const head=['Radnik','Datum','Status','Dolazak','Odlazak','Sati','Vreme unosa'];const rows=(adminData.records||[]).map(r=>[r.worker_name,r.work_date,r.work_status,r.time_in||'',r.time_out||'',r.work_hours||0,r.created_at]);download(`evidencija-${new Date().toISOString().slice(0,10)}.csv`,'\uFEFF'+[head,...rows].map(x=>x.map(csvCell).join(';')).join('\r\n'),'text/csv;charset=utf-8')}
-
-el('date').value=new Date().toISOString().slice(0,10);fillHours();toggleTimes();if(configured())loadWorkers();else message('Prvo podesite Supabase URL i anon key prema UPUTSTVU.txt.','err');
-</script>
+<script src="monthly-logic.js"></script>
+<script src="local-store.js"></script>
+<script src="excel-export.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
