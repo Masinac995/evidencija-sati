@@ -19,7 +19,7 @@ Ako želite da ponovite prenos podataka iz stare centralne baze, u administracij
 
 Radnik na strani **Unos** bira svoje ime, unosi PIN, datum, status i vreme dolaska/odlaska. Za isti datum i istog radnika novi unos ispravlja prethodni.
 
-U **Moja kartica** radnik odmah vidi tekući mesec sa svim dnevnim unosima. Ispod toga stoji sažetak prethodnog završenog meseca: broj radnih dana, radni sati, godišnji odmor, bolovanje i slobodni dani.
+U **Moja kartica** radnik odmah vidi tekući mesec sa svim dnevnim unosima. Ispod toga stoji sažetak prethodnog završenog meseca. U delu **Istorija radnih dana** može da otvori svaki stariji mesec i vidi samo svoje datume, sate, godišnji odmor, bolovanje i slobodne dane.
 
 ## Mesečni presek
 
@@ -47,3 +47,7 @@ Na kraju svakog meseca:
 4. Po želji kopirajte ZIP i na USB ili drugi disk.
 
 JSON kopiju sačuvajte i posle većih izmena radnika ili ispravki evidencije.
+
+## Kada se memorija napuni
+
+Administracija prikazuje procenjeno zauzeće memorije. Kada se lokalna memorija napuni, postojeći podaci ostaju sačuvani, ali pregledač odbija nove unose. Aplikacija ne briše stare mesece automatski. Pre oslobađanja prostora prvo sačuvajte kompletan mesečni ZIP i JSON kopiju na disk F. Za trajnu evidenciju dužu od nekoliko godina preporučuje se centralna baza uz iste mesečne kopije.

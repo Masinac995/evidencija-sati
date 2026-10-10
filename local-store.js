@@ -9,7 +9,7 @@
   const clone=value=>JSON.parse(JSON.stringify(value));
   const empty=()=>({schema_version:3,admin_password_hash:null,workers:[],records:[],next_record_id:1,archives:{},last_active_month:root.MonthlyHours?.currentMonth?.()||''});
   function read(){try{return {...empty(),...JSON.parse(storage().getItem(KEY)||'null')}}catch{return empty()}}
-  function write(data){storage().setItem(KEY,JSON.stringify(data));return data}
+  function write(data){try{storage().setItem(KEY,JSON.stringify(data));return data}catch(error){if(error?.name==='QuotaExceededError'||error?.code===22)throw new Error('Memorija pregledača je puna. Stari podaci su ostali sačuvani, ali novi unos nije dodat. Odmah sačuvajte mesečni ZIP/JSON na disk F i prebacite evidenciju u centralnu bazu.');throw error}}
   async function hash(value){
     const bytes=new TextEncoder().encode(String(value));
     if(root.crypto?.subtle){const digest=await root.crypto.subtle.digest('SHA-256',bytes);return [...new Uint8Array(digest)].map(x=>x.toString(16).padStart(2,'0')).join('')}
@@ -33,7 +33,7 @@
     for(const month of months){
       const records=data.records.filter(r=>monthKey(r.work_date)===month);
       const previous=data.archives?.[month];
-      archives[month]={month,closed_at:previous?.closed_at||new Date().toISOString(),workers:clone(previous?.workers||data.workers),records:clone(records),summary:root.MonthlyHours.summarize(records)};
+      archives[month]={month,closed_at:previous?.closed_at||new Date().toISOString(),workers:clone(previous?.workers||data.workers),summary:root.MonthlyHours.summarize(records)};
     }
     data.archives=archives;data.last_active_month=activeMonth;return data;
   }
@@ -81,12 +81,13 @@
   }
   async function importLegacy(snapshot,adminPassword){return importBackup({workers:snapshot.workers||[],records:snapshot.records||[]},adminPassword)}
   function exportBackup(){const data=rebuildArchives(read());write(data);return {schema_version:3,exported_at:new Date().toISOString(),storage:'LOCAL_BROWSER',data:clone(data)}}
-  function listArchives(){const data=rebuildArchives(read());write(data);return Object.values(data.archives).sort((a,b)=>b.month.localeCompare(a.month)).map(clone)}
+  function listArchives(){const data=rebuildArchives(read());write(data);return Object.values(data.archives).sort((a,b)=>b.month.localeCompare(a.month)).map(archive=>clone({...archive,records:data.records.filter(r=>monthKey(r.work_date)===archive.month)}))}
+  function storageStats(){const raw=storage().getItem(KEY)||'',estimated_bytes=raw.length*2,conservative_limit_bytes=5*1024*1024;return {estimated_bytes,conservative_limit_bytes,percent:Math.min(100,Math.round(estimated_bytes/conservative_limit_bytes*100)),records:read().records.length}}
   async function adoptLegacyPin(workerName,pin){
     if(!/^[0-9]{4}$/.test(String(pin||'')))throw new Error('PIN mora imati tačno 4 cifre.');
     const data=read(),worker=data.workers.find(w=>w.worker_name===workerName&&w.active);if(!worker)throw new Error('Radnik nije pronađen.');
     if(!worker.pin_hash){worker.pin_hash=await hash(pin);write(data)}return true;
   }
   function resetForTests(){storage().setItem(KEY,JSON.stringify(empty()))}
-  return {initialize,isAdminConfigured,createAdmin,rpc,importBackup,importLegacy,exportBackup,listArchives,adoptLegacyPin,resetForTests,calculateHours};
+  return {initialize,isAdminConfigured,createAdmin,rpc,importBackup,importLegacy,exportBackup,listArchives,storageStats,adoptLegacyPin,resetForTests,calculateHours};
 });
