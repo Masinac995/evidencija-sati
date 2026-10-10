@@ -13,17 +13,21 @@ async function legacyRpc(fn,params={}){
   const raw=await response.text();let data=null;try{data=raw?JSON.parse(raw):null}catch{data=raw}
   if(!response.ok)throw new Error(data?.message||data?.error||raw||'Stara baza nije dostupna.');return data;
 }
+async function ensureWorkerPin(name,pin){
+  try{return await rpc('worker_card',{p_worker_name:name,p_pin:pin})}
+  catch(error){if(!String(error.message).includes('prvo postavite novi PIN'))throw error;const legacy=await legacyRpc('worker_card',{p_worker_name:name,p_pin:pin});await db.adoptLegacyPin(name,pin);return legacy}
+}
 function fillHours(){for(let h=0;h<24;h++){const v=String(h).padStart(2,'0')+':00';el('timeIn').add(new Option(v,v,false,h===7));el('timeOut').add(new Option(v,v,false,h===15))}}
 function toggleTimes(){document.querySelectorAll('.time').forEach(x=>x.classList.toggle('hidden',el('workStatus').value!=='Radio'))}
 async function loadWorkers(){try{const rows=await rpc('public_workers');['worker','cardWorker'].forEach(id=>{const s=el(id);s.innerHTML='<option value="">-- Izaberite --</option>';rows.forEach(r=>s.add(new Option(r.worker_name,r.worker_name)))});message('Lokalna evidencija je spremna. Podaci ostaju na ovom uređaju.','ok')}catch(e){message(e.message,'err')}}
 async function submitEntry(){
   const name=el('worker').value,pin=el('entryPin').value,date=el('date').value,status=el('workStatus').value;
   if(!name||!/^[0-9]{4}$/.test(pin)||!date)return alert('Izaberite radnika, datum i unesite tačan četvorocifreni PIN.');
-  try{busy(true);const result=await rpc('submit_work_record',{p_worker_name:name,p_pin:pin,p_work_date:date,p_status:status,p_time_in:status==='Radio'?el('timeIn').value:null,p_time_out:status==='Radio'?el('timeOut').value:null});message(result.message,'ok');el('entryPin').value='';alert(result.message)}catch(e){message(e.message,'err');alert(e.message)}finally{busy(false)}
+  try{busy(true);await ensureWorkerPin(name,pin);const result=await rpc('submit_work_record',{p_worker_name:name,p_pin:pin,p_work_date:date,p_status:status,p_time_in:status==='Radio'?el('timeIn').value:null,p_time_out:status==='Radio'?el('timeOut').value:null});message(result.message,'ok');el('entryPin').value='';alert(result.message)}catch(e){message(e.message,'err');alert(e.message)}finally{busy(false)}
 }
 async function loadWorkerCard(){
   const name=el('cardWorker').value,pin=el('cardPin').value;if(!name||!/^[0-9]{4}$/.test(pin))return alert('Izaberite ime i unesite PIN.');
-  try{busy(true);const d=await rpc('worker_card',{p_worker_name:name,p_pin:pin}),all=d.records||[],current=month.currentMonth(),previous=month.shiftMonth(current,-1),currentRecords=month.filterByMonth(all,current),previousRecords=month.filterByMonth(all,previous),now=month.summarize(currentRecords)[name]||{hours:0,work:0,vac:0,sick:0,free:0},old=month.summarize(previousRecords)[name]||{hours:0,work:0,vac:0,sick:0,free:0},year=Number(current.slice(0,4)),used=month.annualVacationUsed(all,year);
+  try{busy(true);const d=await ensureWorkerPin(name,pin),all=d.records||[],current=month.currentMonth(),previous=month.shiftMonth(current,-1),currentRecords=month.filterByMonth(all,current),previousRecords=month.filterByMonth(all,previous),now=month.summarize(currentRecords)[name]||{hours:0,work:0,vac:0,sick:0,free:0},old=month.summarize(previousRecords)[name]||{hours:0,work:0,vac:0,sick:0,free:0},year=Number(current.slice(0,4)),used=month.annualVacationUsed(all,year);
     el('cardResult').innerHTML=`<div class="notice ok" style="margin-top:15px"><b>${esc(name)} — tekući mesec</b><br><b>${esc(month.monthLabel(current))}</b><br>Radni dani: <b>${now.work}</b> · Radni sati: <b>${now.hours}</b><br>Godišnji odmor ovog meseca: <b>${now.vac}</b> · Bolovanje: <b>${now.sick}</b> · Slobodno: <b>${now.free}</b><br>Godišnji odmor ${year}: iskorišćeno <b>${used}</b>, preostalo <b>${Math.max(Number(d.vacation_days||0)-used,0)}</b></div><div class="notice info" style="margin-top:12px"><b>Prethodni završeni mesec — ${esc(month.monthLabel(previous))}</b><br>Radni dani: <b>${old.work}</b> · Radni sati: <b>${old.hours}</b><br>Godišnji odmor: <b>${old.vac}</b> · Bolovanje: <b>${old.sick}</b> · Slobodno: <b>${old.free}</b></div><h3>Dnevni unosi tekućeg meseca</h3>${recordsTable(currentRecords)}`;el('cardPin').value='';message('Kartica tekućeg i prethodnog meseca je učitana.','ok')
   }catch(e){el('cardResult').innerHTML='';message(e.message,'err');alert(e.message)}finally{busy(false)}
 }
@@ -31,7 +35,7 @@ function openAdmin(){show('admin');el('adminPassword').focus()}
 async function loadAdmin(){
   const pass=el('adminPassword').value;if(!pass)return alert('Unesite admin lozinku.');
   try{busy(true);if(!db.isAdminConfigured()){if(pass.length<4)throw new Error('Prva admin lozinka mora imati najmanje 4 znaka.');await db.createAdmin(pass);
-      try{const snapshot=await legacyRpc('admin_snapshot',{p_admin_password:pass}),result=await db.importLegacy(snapshot,pass);alert(`Lokalna baza je napravljena i stari podaci su automatski prebačeni: ${result.workers} radnika i ${result.records} unosa. Sada postavite novi PIN svakom radniku.`)}
+      try{const snapshot=await legacyRpc('admin_snapshot',{p_admin_password:pass}),result=await db.importLegacy(snapshot,pass);alert(`Lokalna baza je napravljena i stari podaci su automatski prebačeni: ${result.workers} radnika i ${result.records} unosa. Radnici nastavljaju da koriste postojeće PIN kodove.`)}
       catch{alert('Lokalna baza je napravljena. Stara baza nije uvezena jer lozinka nije ista ili servis nije dostupan; uvoz možete ponoviti dugmetom u administraciji.')}
     }
     adminData=await rpc('admin_snapshot',{p_admin_password:pass});renderAdmin();renderArchives();el('adminContent').classList.remove('hidden');message('Lokalna baza je učitana.','ok')
@@ -66,6 +70,6 @@ function exportArchiveExcel(key){const a=db.listArchives().find(x=>x.month===key
 function exportArchiveCSV(key){const a=db.listArchives().find(x=>x.month===key);if(a)download(`evidencija-${key}.csv`,csvFor(a.records),'text/csv;charset=utf-8')}
 function chooseJSON(){el('jsonFile').click()}
 async function importJSON(input){const file=input.files?.[0];if(!file)return;try{const result=await db.importBackup(JSON.parse(await file.text()),adminPass());alert(`Kopija je uvezena: ${result.workers} radnika i ${result.records} unosa.`);await loadAdmin();await loadWorkers()}catch(e){alert(e.message)}finally{input.value=''}}
-async function importLegacy(){if(!confirm('Uvesti postojeće radnike i unose iz stare centralne baze? Lokalni podaci biće zamenjeni.'))return;const oldPass=prompt('Unesite admin lozinku stare baze:');if(!oldPass)return;try{busy(true);const snapshot=await legacyRpc('admin_snapshot',{p_admin_password:oldPass}),result=await db.importLegacy(snapshot,adminPass());alert(`Uvezeno je ${result.workers} radnika i ${result.records} unosa. Zbog bezbednosti stari PIN-ovi nisu dostupni; postavite novi PIN svakom radniku.`);await loadAdmin();await loadWorkers()}catch(e){alert(e.message)}finally{busy(false)}}
+async function importLegacy(){if(!confirm('Uvesti postojeće radnike i unose iz stare centralne baze? Lokalni podaci biće zamenjeni.'))return;const oldPass=prompt('Unesite admin lozinku stare baze:');if(!oldPass)return;try{busy(true);const snapshot=await legacyRpc('admin_snapshot',{p_admin_password:oldPass}),result=await db.importLegacy(snapshot,adminPass());alert(`Uvezeno je ${result.workers} radnika i ${result.records} unosa. Radnici nastavljaju da koriste iste PIN kodove; pri prvoj upotrebi PIN će biti potvrđen preko stare baze.`);await loadAdmin();await loadWorkers()}catch(e){alert(e.message)}finally{busy(false)}}
 
 db.initialize();el('date').value=month.localDateISO();el('adminMonth').value=month.currentMonth();fillHours();toggleTimes();loadWorkers();

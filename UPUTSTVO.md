@@ -11,9 +11,9 @@ GitHub Pages besplatno prikazuje aplikaciju, ali ne čuva evidenciju. Brisanje p
 1. Otvorite aplikaciju i kliknite **Admin**.
 2. Ako prelazite sa stare aplikacije, unesite postojeću admin lozinku stare baze. Ako nemate stare podatke, unesite novu lozinku od najmanje četiri znaka.
 3. Pri prvom ulasku ta lozinka pravi lokalnu bazu. Aplikacija automatski pokušava da prebaci sve postojeće radnike i unose iz stare baze, uključujući prethodni mesec.
-4. Zapamtite admin lozinku. Posle prenosa postavite nov četvorocifreni PIN svakom radniku, jer se stari PIN-ovi ne mogu pročitati iz stare baze.
+4. Zapamtite admin lozinku. Radnici nastavljaju da koriste iste četvorocifrene PIN kodove. Pri prvoj upotrebi svakog radnika postojeći PIN se proverava preko stare baze i bezbedno pamti u lokalnoj evidenciji.
 
-Ako želite da prebacite podatke iz stare centralne baze, u administraciji izaberite **Jednom uvezi staru centralnu bazu**. Posle uvoza postavite nov PIN svakom radniku jer se stari PIN-ovi ne mogu pročitati iz stare baze.
+Ako želite da ponovite prenos podataka iz stare centralne baze, u administraciji izaberite **Jednom uvezi staru centralnu bazu**. Postojeći PIN kodovi radnika ostaju isti.
 
 ## Svakodnevni unos
 

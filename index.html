@@ -53,7 +53,7 @@
       <div class="card"><h3 id="recordsTitle">Evidencija</h3><div class="inline"><button class="green" onclick="exportExcel()">Preuzmi konačnu Excel tabelu</button><button class="gray" onclick="exportCSV()">Preuzmi CSV</button><button class="gray" onclick="exportJSON()">Sačuvaj kompletnu JSON kopiju</button></div><div class="scroll"><table><thead><tr><th>Radnik</th><th>Datum</th><th>Status</th><th>Vreme / sati</th><th></th></tr></thead><tbody id="recordsBody"></tbody></table></div></div>
       <div class="card"><h3 id="summaryTitle">Mesečni sažetak</h3><div id="summary"></div></div>
       <div class="card"><h3>Završeni meseci</h3><p class="muted">Kada prvi put otvorite aplikaciju u novom mesecu, prethodni mesec se automatski čuva u ovu arhivu.</p><div id="archives"></div></div>
-      <div class="card"><h3>Rezervna kopija i prelazak</h3><div class="inline"><button class="gray" onclick="chooseJSON()">Uvezi JSON kopiju</button><button class="gray" onclick="importLegacy()">Jednom uvezi staru centralnu bazu</button></div><input id="jsonFile" class="hidden" type="file" accept=".json,application/json" onchange="importJSON(this)"><p class="muted">Posle uvoza stare baze postavite novi PIN svakom radniku.</p></div>
+      <div class="card"><h3>Rezervna kopija i prelazak</h3><div class="inline"><button class="gray" onclick="chooseJSON()">Uvezi JSON kopiju</button><button class="gray" onclick="importLegacy()">Jednom uvezi staru centralnu bazu</button></div><input id="jsonFile" class="hidden" type="file" accept=".json,application/json" onchange="importJSON(this)"><p class="muted">Radnici nastavljaju da koriste iste PIN kodove; pri prvoj upotrebi postojeći PIN se potvrđuje preko stare baze.</p></div>
     </div>
   </section>
   <section class="card">

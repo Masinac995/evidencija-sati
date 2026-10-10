@@ -82,6 +82,11 @@
   async function importLegacy(snapshot,adminPassword){return importBackup({workers:snapshot.workers||[],records:snapshot.records||[]},adminPassword)}
   function exportBackup(){const data=rebuildArchives(read());write(data);return {schema_version:3,exported_at:new Date().toISOString(),storage:'LOCAL_BROWSER',data:clone(data)}}
   function listArchives(){const data=rebuildArchives(read());write(data);return Object.values(data.archives).sort((a,b)=>b.month.localeCompare(a.month)).map(clone)}
+  async function adoptLegacyPin(workerName,pin){
+    if(!/^[0-9]{4}$/.test(String(pin||'')))throw new Error('PIN mora imati tačno 4 cifre.');
+    const data=read(),worker=data.workers.find(w=>w.worker_name===workerName&&w.active);if(!worker)throw new Error('Radnik nije pronađen.');
+    if(!worker.pin_hash){worker.pin_hash=await hash(pin);write(data)}return true;
+  }
   function resetForTests(){storage().setItem(KEY,JSON.stringify(empty()))}
-  return {initialize,isAdminConfigured,createAdmin,rpc,importBackup,importLegacy,exportBackup,listArchives,resetForTests,calculateHours};
+  return {initialize,isAdminConfigured,createAdmin,rpc,importBackup,importLegacy,exportBackup,listArchives,adoptLegacyPin,resetForTests,calculateHours};
 });
