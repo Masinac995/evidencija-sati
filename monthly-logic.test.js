@@ -14,7 +14,7 @@ assert.equal(month.shiftMonth('2026-12',1),'2027-01');
 assert.equal(month.shiftMonth('2026-01',-1),'2025-12');
 assert.equal(month.filterByMonth(records,'2026-10').length,3);
 assert.deepEqual(month.summarize(month.filterByMonth(records,'2026-10')),{
-  Ana:{hours:7.5,work:1,vac:1,sick:0,free:0},
+  Ana:{hours:15.5,work:1,vac:1,sick:0,free:0},
   Milan:{hours:0,work:0,vac:0,sick:1,free:0}
 });
 assert.equal(month.annualVacationUsed(records,2026),1);

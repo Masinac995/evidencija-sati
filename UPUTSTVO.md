@@ -19,6 +19,8 @@ Ako želite da ponovite prenos podataka iz stare centralne baze, u administracij
 
 Radnik na strani **Unos** bira svoje ime, unosi PIN, datum, status i vreme dolaska/odlaska. Za isti datum i istog radnika novi unos ispravlja prethodni.
 
+Svaki dan **Godišnjeg odmora** računa se kao 8 obračunskih sati. Admin određuje dozvoljeni broj dana godišnjeg odmora za svakog radnika. Kada radnik iskoristi sve dozvoljene dane u kalendarskoj godini, aplikacija odbija novi unos godišnjeg odmora i upućuje ga da izabere **Bolovanje** ili **Slobodan dan**. Admin može povećati dozvoljeni broj dana u podacima radnika.
+
 U **Moja kartica** radnik odmah vidi tekući mesec sa svim dnevnim unosima. Ispod toga stoji sažetak prethodnog završenog meseca. U delu **Istorija radnih dana** može da otvori svaki stariji mesec i vidi samo svoje datume, sate, godišnji odmor, bolovanje i slobodne dane.
 
 ## Mesečni presek

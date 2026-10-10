@@ -35,7 +35,7 @@
   }
   function build(month,workers,records){
     const summary=root.MonthlyHours.summarize(records),byName=Object.entries(summary).sort((a,b)=>a[0].localeCompare(b[0],'sr'));
-    const summaryRows=[[`MAŠINAC PLUS — ${root.MonthlyHours.monthLabel(month)}`],['Radnik','Radni dani','Sati','Cena/sat (RSD)','Obračun (RSD)','Odmor','Bolovanje','Slobodno']];
+    const summaryRows=[[`MAŠINAC PLUS — ${root.MonthlyHours.monthLabel(month)}`],['Radnik','Radni dani','Obračunski sati','Cena/sat (RSD)','Obračun (RSD)','Odmor (dani)','Bolovanje','Slobodno']];
     for(const [name,x] of byName){const worker=workers.find(w=>w.worker_name===name)||{},rate=Number(worker.hourly_rate||0);summaryRows.push([name,x.work,x.hours,rate,Math.round(x.hours*rate*100)/100,x.vac,x.sick,x.free])}
     summaryRows.push(['UKUPNO',byName.reduce((s,[,x])=>s+x.work,0),byName.reduce((s,[,x])=>s+x.hours,0),'',byName.reduce((s,[name,x])=>{const w=workers.find(q=>q.worker_name===name)||{};return s+x.hours*Number(w.hourly_rate||0)},0),byName.reduce((s,[,x])=>s+x.vac,0),byName.reduce((s,[,x])=>s+x.sick,0),byName.reduce((s,[,x])=>s+x.free,0)]);
     const detailRows=[[`MAŠINAC PLUS — dnevni unosi — ${root.MonthlyHours.monthLabel(month)}`],['Radnik','Datum','Status','Dolazak','Odlazak','Sati','Vreme unosa']];

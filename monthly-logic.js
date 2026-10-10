@@ -25,7 +25,7 @@
       map[name]??={hours:0,work:0,vac:0,sick:0,free:0};
       const row=map[name];
       if(record.work_status==='Radio'){row.hours+=Number(record.work_hours||0);row.work++}
-      else if(record.work_status==='Godišnji odmor')row.vac++;
+      else if(record.work_status==='Godišnji odmor'){row.hours+=Number(record.work_hours||8);row.vac++}
       else if(record.work_status==='Bolovanje')row.sick++;
       else row.free++;
     });

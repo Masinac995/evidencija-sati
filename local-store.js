@@ -19,7 +19,7 @@
   const currentMonth=()=>root.MonthlyHours.currentMonth();
   const monthKey=date=>root.MonthlyHours.monthKey(date);
   function normalizeWorker(worker){return {worker_name:String(worker.worker_name||'').trim(),pin_hash:worker.pin_hash||null,hourly_rate:Number(worker.hourly_rate||0),vacation_days:Number(worker.vacation_days??20),active:worker.active!==false}}
-  function normalizeRecord(record,id){return {id:Number(record.id||id),worker_name:String(record.worker_name||''),work_date:String(record.work_date||''),work_status:String(record.work_status||''),time_in:record.time_in||null,time_out:record.time_out||null,work_hours:Number(record.work_hours||0),created_at:record.created_at||new Date().toISOString()}}
+  function normalizeRecord(record,id){const status=String(record.work_status||''),hours=status==='Godišnji odmor'?8:Number(record.work_hours||0);return {id:Number(record.id||id),worker_name:String(record.worker_name||''),work_date:String(record.work_date||''),work_status:status,time_in:record.time_in||null,time_out:record.time_out||null,work_hours:hours,created_at:record.created_at||new Date().toISOString()}}
   function calculateHours(start,end){
     const parts=value=>String(value||'').split(':').map(Number),a=parts(start),b=parts(end);
     if(a.length<2||b.length<2||a.some(Number.isNaN)||b.some(Number.isNaN))throw new Error('Unesite ispravno vreme dolaska i odlaska.');
@@ -37,7 +37,7 @@
     }
     data.archives=archives;data.last_active_month=activeMonth;return data;
   }
-  function initialize(){const data=rebuildArchives(read());write(data);return clone(data)}
+  function initialize(){const data=read();data.records=data.records.map((record,index)=>normalizeRecord(record,index+1));rebuildArchives(data);write(data);return clone(data)}
   const isAdminConfigured=()=>Boolean(read().admin_password_hash);
   async function createAdmin(password){if(String(password).length<4)throw new Error('Admin lozinka mora imati najmanje 4 znaka.');const data=read();if(data.admin_password_hash)throw new Error('Admin lozinka je već postavljena.');data.admin_password_hash=await hash(password);write(data);return true}
   async function requireAdmin(data,password){if(!data.admin_password_hash)throw new Error('ADMIN_NOT_CONFIGURED');if(await hash(password)!==data.admin_password_hash)throw new Error('Pogrešna admin lozinka.')}
@@ -46,10 +46,12 @@
     const data=read();
     if(fn==='public_workers')return clone(data.workers.filter(w=>w.active).sort((a,b)=>a.worker_name.localeCompare(b.worker_name,'sr')).map(w=>({worker_name:w.worker_name})));
     if(fn==='submit_work_record'){
-      await requireWorker(data,p.p_worker_name,p.p_pin);const status=p.p_status,date=p.p_work_date;
+      const worker=await requireWorker(data,p.p_worker_name,p.p_pin),status=p.p_status,date=p.p_work_date;
       if(!/^\d{4}-\d{2}-\d{2}$/.test(date))throw new Error('Datum nije ispravan.');
-      const hours=status==='Radio'?calculateHours(p.p_time_in,p.p_time_out):0;
-      let record=data.records.find(r=>r.worker_name===p.p_worker_name&&r.work_date===date);
+      const existing=data.records.find(r=>r.worker_name===p.p_worker_name&&r.work_date===date),year=date.slice(0,4),usedVacation=data.records.filter(r=>r.worker_name===p.p_worker_name&&r.work_status==='Godišnji odmor'&&r.work_date.startsWith(year)&&r.id!==existing?.id).length;
+      if(status==='Godišnji odmor'&&usedVacation>=Number(worker.vacation_days||0))throw new Error(`Iskoristili ste svih ${Number(worker.vacation_days||0)} dozvoljenih dana godišnjeg odmora za ${year}. Izaberite Bolovanje ili Slobodan dan.`);
+      const hours=status==='Radio'?calculateHours(p.p_time_in,p.p_time_out):status==='Godišnji odmor'?8:0;
+      let record=existing;
       if(record)Object.assign(record,{work_status:status,time_in:status==='Radio'?p.p_time_in:null,time_out:status==='Radio'?p.p_time_out:null,work_hours:hours,created_at:new Date().toISOString()});
       else{record=normalizeRecord({worker_name:p.p_worker_name,work_date:date,work_status:status,time_in:status==='Radio'?p.p_time_in:null,time_out:status==='Radio'?p.p_time_out:null,work_hours:hours},data.next_record_id++);data.records.push(record)}
       write(rebuildArchives(data));return {message:record.id?'Dnevni unos je sačuvan.':'Podatak je sačuvan.'};
