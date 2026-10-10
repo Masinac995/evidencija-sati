@@ -12,8 +12,8 @@
 <body>
 <main class="container">
   <h1>MASINAC PLUS – Evidencija radnog vremena</h1>
-  <div id="status" class="notice info status">Pokretanje lokalne evidencije…</div>
-  <div class="notice warning"><b>Podaci se čuvaju samo u ovom pregledaču na ovom uređaju.</b> Na kraju meseca preuzmite Excel tabelu i JSON kopiju.</div>
+  <div id="status" class="notice info status">Povezivanje sa centralnom bazom…</div>
+  <div class="notice ok"><b>Podaci se čuvaju u centralnoj Supabase bazi.</b> Unosi sa telefona odmah su dostupni administratoru. Kada je administratorska stranica otvorena, rezervna kopija na disku F osvežava se automatski.</div>
   <nav class="nav">
     <button onclick="show('entry')">Unos</button>
     <button class="gray" onclick="show('card')">Moja kartica</button>
@@ -45,28 +45,26 @@
       <h2>Administracija</h2>
       <div class="inline"><div><label>Admin lozinka</label><input id="adminPassword" type="password"></div><button class="green" onclick="loadAdmin()">Osveži bazu</button></div>
       <div class="inline"><button class="gray" onclick="changeAdminMonth(-1)">← Prethodni</button><div><label>Mesec obračuna</label><input id="adminMonth" type="month" onchange="renderAdmin()"></div><button class="gray" onclick="changeAdminMonth(1)">Sledeći →</button><button class="gray" onclick="setCurrentAdminMonth()">Tekući mesec</button></div>
-      <p class="muted">Pri prvom ulasku unesite postojeću admin lozinku stare baze. Ona postaje lokalna admin lozinka, a stari podaci se automatski prebacuju.</p>
+      <p class="muted">Unesite postojeću administratorsku lozinku centralne baze. Radnici i PIN kodovi ostaju isti.</p>
     </div>
     <div id="adminContent" class="hidden">
       <div class="card"><h3>Dodaj radnika</h3><div class="grid"><input id="newName" placeholder="Ime i prezime"><input id="newPin" type="password" inputmode="numeric" maxlength="4" placeholder="PIN"><input id="newVacation" type="number" min="0" value="20" placeholder="Dani odmora"><button class="green" onclick="saveWorker()">Dodaj radnika</button></div></div>
-      <div class="card"><h3>Radnici</h3><div class="scroll"><table><thead><tr><th>Radnik</th><th>Cena/sat</th><th>Odmor</th><th>Novi PIN</th><th>Akcije</th></tr></thead><tbody id="workersBody"></tbody></table></div></div>
-      <div class="card"><h3 id="recordsTitle">Evidencija po radnicima</h3><button class="green full" onclick="saveMonthlyPackage()">Sačuvaj mesečnu evidenciju — Excel + kopija</button><button class="gray full" onclick="configureBackupFolder()">Poveži folder F:\Aplikacija radnih sati</button><p id="folderStatus" class="notice info">Folder na disku F još nije povezan.</p><div class="inline"><button class="gray" onclick="exportExcel()">Samo Excel</button><button class="gray" onclick="exportCSV()">Samo CSV</button><button class="gray" onclick="exportJSON()">Samo JSON kopija</button></div><p class="muted">Kada je folder F povezan, fajl AUTOMATSKE-KOPIJE\NAJNOVIJA-KOMPLETNA-KOPIJA.json osvežava se posle svake izmene.</p><p class="muted">Kliknite na ime radnika da otvorite njegovu satnicu za izabrani mesec.</p><div id="recordsByWorker"></div></div>
+      <div class="card"><h3>Radnici</h3><div class="scroll"><table><thead><tr><th>Radnik</th><th>Cena/sat</th><th>Odmor</th><th>Akcije</th></tr></thead><tbody id="workersBody"></tbody></table></div><p class="muted">Čuvanjem izmene satnice ili odmora postojeći PIN radnika ostaje isti.</p></div>
+      <div class="card"><h3 id="recordsTitle">Evidencija po radnicima</h3><button class="green full" onclick="saveMonthlyPackage()">Sačuvaj mesečnu evidenciju — Excel + kopija</button><button class="gray full" onclick="configureBackupFolder()">Poveži folder F:\Aplikacija radnih sati</button><p id="folderStatus" class="notice info">Folder na disku F još nije povezan.</p><div class="inline"><button class="gray" onclick="exportExcel()">Samo Excel</button><button class="gray" onclick="exportCSV()">Samo CSV</button><button class="gray" onclick="exportJSON()">Samo JSON kopija</button></div><p class="muted">Kada je folder F povezan, fajl AUTOMATSKE-KOPIJE\NAJNOVIJA-KOMPLETNA-KOPIJA.json osvežava se pri ulasku admina, posle admin izmene i najkasnije 15 sekundi nakon novog unosa dok je admin stranica otvorena.</p><p class="muted">Kliknite na ime radnika da otvorite njegovu satnicu za izabrani mesec.</p><div id="recordsByWorker"></div></div>
       <div class="card"><h3 id="summaryTitle">Mesečni sažetak</h3><div id="summary"></div></div>
-      <div class="card"><h3>Završeni meseci</h3><p class="muted">Kada prvi put otvorite aplikaciju u novom mesecu, prethodni mesec se automatski čuva u ovu arhivu.</p><div id="archives"></div></div>
-      <div class="card"><h3>Memorija evidencije</h3><p id="storageStatus" class="notice info">Računanje zauzeća…</p><p class="muted">Aplikacija nikada sama ne briše stare mesece. Ako se memorija približi ograničenju, prvo sačuvajte kompletan paket na disk F.</p></div>
-      <div class="card"><h3>Rezervna kopija i prelazak</h3><div class="inline"><button class="gray" onclick="chooseJSON()">Uvezi JSON kopiju</button><button class="gray" onclick="importLegacy()">Jednom uvezi staru centralnu bazu</button></div><input id="jsonFile" class="hidden" type="file" accept=".json,application/json" onchange="importJSON(this)"><p class="muted">Radnici nastavljaju da koriste iste PIN kodove; pri prvoj upotrebi postojeći PIN se potvrđuje preko stare baze.</p></div>
+      <div class="card"><h3>Završeni meseci</h3><p class="muted">Raniji meseci ostaju u centralnoj bazi i ovde se automatski prikazuju. Mesec brišite tek nakon što sačuvate njegov paket na disk F.</p><div id="archives"></div></div>
+      <div class="card"><h3>Status baze</h3><p id="storageStatus" class="notice info">Učitavanje podataka…</p><p class="muted">Brisanje keša pregledača ne briše centralnu evidenciju. Disk F je dodatna rezervna kopija.</p></div>
     </div>
   </section>
   <section class="card">
     <details><summary>Kako se koristi i šta znače Excel, CSV i JSON?</summary>
-      <ol><li>Radnik izabere svoje ime, unese PIN, datum, status i vreme, pa sačuva unos.</li><li>U „Moja kartica” vidi tekući mesec sa dnevnim unosima i zbir prethodnog završenog meseca.</li><li>Admin bira mesec i dobija tabelu i obračun za sve radnike.</li><li>Na kraju meseca kliknite <b>Sačuvaj mesečnu evidenciju</b>. Jedan ZIP paket sa Excelom, CSV tabelom i JSON kopijom biće preuzet u Downloads.</li><li><b>CSV</b> je jednostavna tabela bez boja i formatiranja; otvara se u Excelu i pogodna je za dalju obradu.</li><li><b>JSON</b> je kompletna rezervna kopija cele evidencije. Služi za vraćanje podataka ako promenite računar ili pregledač.</li></ol>
-      <p><b>Važno:</b> ne brišite podatke pregledača pre nego što sačuvate JSON kopiju. GitHub Pages besplatno prikazuje aplikaciju, ali ne čuva vaše radne sate.</p>
+      <ol><li>Radnik izabere svoje ime, unese postojeći PIN, datum, status i vreme, pa sačuva unos u centralnu bazu.</li><li>U „Moja kartica” vidi tekući mesec, prethodni mesec i raniju istoriju.</li><li>Admin bira mesec i dobija tabelu i obračun za sve radnike.</li><li>Admin jednom poveže folder <b>F:\Aplikacija radnih sati</b>. Dok je admin stranica otvorena, najnovija JSON kopija se automatski osvežava.</li><li>Na kraju meseca kliknite <b>Sačuvaj mesečnu evidenciju</b>. U izabrani folder se čuva ZIP sa Excelom, CSV tabelom i JSON kopijom.</li><li><b>CSV</b> je jednostavna tabela bez boja i formatiranja. <b>JSON</b> je potpuna rezervna kopija podataka.</li></ol>
+      <p><b>Važno:</b> GitHub Pages prikazuje aplikaciju, Supabase čuva zajedničke podatke, a disk F služi kao dodatna lokalna zaštita.</p>
     </details>
   </section>
 </main>
 
 <script src="monthly-logic.js"></script>
-<script src="local-store.js"></script>
 <script src="excel-export.js"></script>
 <script src="folder-backup.js"></script>
 <script src="app.js"></script>

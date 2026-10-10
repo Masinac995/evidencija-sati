@@ -1,59 +1,86 @@
-# Evidencija radnih sati — uputstvo
+# Uputstvo za evidenciju radnih sati
 
-## Gde se čuvaju podaci
+## Gde se podaci čuvaju
 
-Aplikacija radi preko GitHub Pages bez plaćenog servera. Svi radnici, PIN-ovi i unosi čuvaju se lokalno u pregledaču na uređaju na kome koristite aplikaciju. Zato koristite jedan glavni računar i isti pregledač za administraciju.
+Aplikacija koristi tri dela:
 
-GitHub Pages besplatno prikazuje aplikaciju, ali ne čuva evidenciju. Brisanje podataka pregledača, promena računara ili drugog pregledača uklanja lokalne podatke ako prethodno nije sačuvana JSON kopija.
+1. **GitHub Pages** prikazuje aplikaciju na telefonu i računaru.
+2. **Supabase** je centralna baza. Kada radnik sa telefona sačuva unos, isti podatak odmah postoji u zajedničkoj bazi i administrator ga vidi na računaru.
+3. **Disk F** čuva dodatnu rezervnu kopiju. Folder se jednom povezuje dugmetom u administraciji.
 
-## Prvo pokretanje
+Brisanje keša ili istorije pregledača ne briše radne sate iz Supabase baze. Postojeća imena radnika i PIN kodovi ostaju isti.
 
-1. Otvorite aplikaciju i kliknite **Admin**.
-2. Ako prelazite sa stare aplikacije, unesite postojeću admin lozinku stare baze. Ako nemate stare podatke, unesite novu lozinku od najmanje četiri znaka.
-3. Pri prvom ulasku ta lozinka pravi lokalnu bazu. Aplikacija automatski pokušava da prebaci sve postojeće radnike i unose iz stare baze, uključujući prethodni mesec.
-4. Zapamtite admin lozinku. Radnici nastavljaju da koriste iste četvorocifrene PIN kodove. Pri prvoj upotrebi svakog radnika postojeći PIN se proverava preko stare baze i bezbedno pamti u lokalnoj evidenciji.
+## Dnevni unos radnika
 
-Ako želite da ponovite prenos podataka iz stare centralne baze, u administraciji izaberite **Jednom uvezi staru centralnu bazu**. Postojeći PIN kodovi radnika ostaju isti.
+1. Otvorite aplikaciju.
+2. Izaberite ime radnika.
+3. Unesite postojeći PIN od četiri cifre.
+4. Izaberite datum i status.
+5. Za status **Radio** izaberite dolazak i odlazak.
+6. Pritisnite **Sačuvaj unos**.
 
-## Svakodnevni unos
+Godišnji odmor se računa kao osam obračunskih sati. Radnik može da unese samo broj dana godišnjeg odmora koji mu je administrator odobrio. Kada ih iskoristi, može da izabere bolovanje ili slobodan dan.
 
-Radnik na strani **Unos** bira svoje ime, unosi PIN, datum, status i vreme dolaska/odlaska. Za isti datum i istog radnika novi unos ispravlja prethodni.
+## Kartica radnika
 
-Svaki dan **Godišnjeg odmora** računa se kao 8 obračunskih sati. Admin određuje dozvoljeni broj dana godišnjeg odmora za svakog radnika. Kada radnik iskoristi sve dozvoljene dane u kalendarskoj godini, aplikacija odbija novi unos godišnjeg odmora i upućuje ga da izabere **Bolovanje** ili **Slobodan dan**. Admin može povećati dozvoljeni broj dana u podacima radnika.
+U delu **Moja kartica** radnik unosi ime i PIN. Prikazuju se:
 
-U **Moja kartica** radnik odmah vidi tekući mesec sa svim dnevnim unosima. Ispod toga stoji sažetak prethodnog završenog meseca. U delu **Istorija radnih dana** može da otvori svaki stariji mesec i vidi samo svoje datume, sate, godišnji odmor, bolovanje i slobodne dane.
+- tekući mesec i dnevni unosi;
+- prethodni završeni mesec;
+- stariji meseci po godinama i mesecima;
+- iskorišćeni i preostali godišnji odmor;
+- bolovanje i slobodni dani.
 
-## Mesečni presek
+Radnik vidi samo svoju karticu jer je pristup zaštićen njegovim PIN-om.
 
-Admin bira mesec strelicama ili kalendarom. Svaki mesec ima zasebnu evidenciju i sažetak. Kada se aplikacija prvi put otvori u novom mesecu, svi raniji meseci automatski se pojavljuju u delu **Završeni meseci**.
+## Administracija
 
-U administraciji evidencija je grupisana po imenima radnika. Klikom na ime otvara se samo njegova satnica za izabrani mesec, sa dnevnim unosima, ukupnim satima, cenom rada, obračunom, godišnjim odmorom i bolovanjem.
+Administrator unosi postojeću administratorsku lozinku i pritiska **Osveži bazu**. Može da:
 
-Pregledač ne može sam da upiše fajl u proizvoljan folder dok je aplikacija zatvorena. Zato se arhiva pravi automatski unutar aplikacije. Dugme **Sačuvaj mesečnu evidenciju** jednim klikom preuzima ZIP paket sa Excelom, CSV tabelom i kompletnom JSON kopijom.
+- pregleda svaki mesec;
+- otvori satnicu pojedinačnog radnika klikom na ime;
+- doda ili ukloni radnika;
+- promeni cenu rada i broj dana godišnjeg odmora;
+- obriše pogrešan dnevni unos;
+- preuzme Excel, CSV ili JSON;
+- sačuva kompletan mesečni ZIP paket;
+- obriše izabrani završeni mesec nakon pravljenja kopije.
 
-Prvi put kliknite **Poveži folder F:\Aplikacija radnih sati** i u prozoru izaberite taj folder na disku F. Posle toga dugme **Sačuvaj mesečnu evidenciju** direktno upisuje paket u `F:\Aplikacija radnih sati`, razvrstan po godini i mesecu. Pregledač može povremeno ponovo tražiti dozvolu za pristup folderu.
+Promena satnice ili godišnjeg odmora ne menja postojeći PIN radnika.
 
-Kada je folder povezan, aplikacija posle svakog uspešnog unosa ili administrativne izmene automatski osvežava `F:\Aplikacija radnih sati\AUTOMATSKE-KOPIJE\NAJNOVIJA-KOMPLETNA-KOPIJA.json`. Ako se podaci pregledača obrišu, ova kopija ostaje na disku F i vraća se dugmetom **Uvezi JSON kopiju**.
+## Automatska kopija na disk F
 
-## Excel, CSV i JSON
+1. Na administratorskom računaru otvorite administraciju.
+2. Pritisnite **Poveži folder F:\Aplikacija radnih sati**.
+3. Izaberite baš taj folder i dozvolite upis.
 
-- **Excel (.xlsx)** je konačna, pregledno formatirana mesečna tabela. Sadrži list „Mesečni sažetak” sa satima i obračunom svih radnika i list „Dnevni unosi” sa pojedinačnim evidencijama. Ovo je glavni fajl za čuvanje, štampu i knjigovođu.
-- **CSV (.csv)** je jednostavna tabela bez boja, formula i više listova. Otvara se u Excelu i pogodna je za prenos podataka u drugi program.
-- **JSON (.json)** je kompletna rezervna kopija baze, uključujući sve radnike, unose i mesečne arhive. Namenjen je vraćanju podataka preko dugmeta **Uvezi JSON kopiju**, a ne ručnom čitanju ili izmeni.
+Fajl se čuva ovde:
 
-## Preporučeno čuvanje
+`F:\Aplikacija radnih sati\AUTOMATSKE-KOPIJE\NAJNOVIJA-KOMPLETNA-KOPIJA.json`
 
-Na kraju svakog meseca:
+Kopija se osvežava:
 
-1. Izaberite završeni mesec.
-2. Kliknite **Sačuvaj mesečnu evidenciju**.
-3. Paket se automatski upisuje, na primer u `F:\Aplikacija radnih sati\2026\10 - oktobar\MASINAC-evidencija-2026-10.zip`.
-4. Po želji kopirajte ZIP i na USB ili drugi disk.
+- pri uspešnom ulasku u administraciju;
+- posle administratorske izmene;
+- najkasnije oko 15 sekundi nakon novog unosa radnika, dok je administratorska stranica otvorena.
 
-JSON kopiju sačuvajte i posle većih izmena radnika ili ispravki evidencije.
+Ako je računar ugašen ili je administratorska stranica zatvorena, radnikov unos se i dalje bezbedno čuva u Supabase bazi. Kopija na F se osvežava sledeći put kada administrator otvori aplikaciju. Pregledač ponekad posle ponovnog pokretanja traži da ponovo dozvolite pristup folderu.
 
-## Kada se memorija napuni
+## Mesečni paket
 
-Administracija prikazuje procenjeno zauzeće memorije. Kada se lokalna memorija napuni, postojeći podaci ostaju sačuvani, ali pregledač odbija nove unose. Aplikacija ne briše stare mesece automatski. Pre oslobađanja prostora prvo sačuvajte kompletan mesečni ZIP i JSON kopiju na disk F. Za trajnu evidenciju dužu od nekoliko godina preporučuje se centralna baza uz iste mesečne kopije.
+Dugme **Sačuvaj mesečnu evidenciju — Excel + kopija** pravi ZIP u folderu godine i meseca. Paket sadrži:
 
-Završeni mesec može ručno da se obriše dugmetom **Obriši mesec**. Aplikacija traži potvrdu i ne dozvoljava brisanje tekućeg meseca. Pre brisanja obavezno sačuvajte mesečni ZIP paket na disk F, jer se brisanje ne može poništiti bez JSON kopije.
+- **Excel (.xlsx)** — lepo formatiran mesečni sažetak i svi dnevni unosi;
+- **CSV (.csv)** — jednostavna tabela za Excel ili drugi program;
+- **JSON (.json)** — potpuna rezervna kopija centralne evidencije;
+- kratko tekstualno uputstvo.
+
+## Šta znače CSV i JSON
+
+**CSV** je obična tabela. Namenjen je pregledanju i obradi podataka u Excelu.
+
+**JSON** je rezervna kopija za tehničko vraćanje podataka. Nije namenjen ručnom čitanju niti svakodnevnom radu.
+
+## Brisanje starog meseca
+
+U delu **Završeni meseci** izaberite mesec i prvo pritisnite **Sačuvaj sve**. Tek kada proverite da je ZIP sačuvan na disku F, pritisnite **Obriši mesec**. Brisanje uklanja sve unose tog meseca iz centralne baze i ne može se poništiti bez rezervne kopije.
