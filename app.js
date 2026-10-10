@@ -3,7 +3,11 @@ const SUPABASE_PUBLISHABLE_KEY='sb_publishable_HDT3J5jQchOUM083dcpYow_UoB9ZU9q';
 const month=window.MonthlyHours;
 let adminData={workers:[],records:[]},adminPollTimer=null,adminFingerprint='';
 const el=id=>document.getElementById(id);
-function message(text,type='info'){el('status').className='notice status '+type;el('status').textContent=text}
+function message(text,type='info'){
+  const box=el('status'),close=document.createElement('button');
+  box.className='notice status dismissible '+type;box.textContent=text;
+  close.type='button';close.className='notice-close';close.setAttribute('aria-label','Zatvori obaveštenje');close.textContent='×';close.onclick=()=>{box.className='hidden';box.textContent=''};box.appendChild(close);
+}
 function busy(on){document.body.classList.toggle('spinner',on)}
 function show(id){['entry','card','admin'].forEach(x=>el(x).classList.toggle('hidden',x!==id));if(id==='card')el('cardResult').innerHTML=''}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
