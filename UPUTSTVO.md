@@ -25,6 +25,8 @@ U **Moja kartica** radnik odmah vidi tekući mesec sa svim dnevnim unosima. Ispo
 
 Admin bira mesec strelicama ili kalendarom. Svaki mesec ima zasebnu evidenciju i sažetak. Kada se aplikacija prvi put otvori u novom mesecu, svi raniji meseci automatski se pojavljuju u delu **Završeni meseci**.
 
+U administraciji evidencija je grupisana po imenima radnika. Klikom na ime otvara se samo njegova satnica za izabrani mesec, sa dnevnim unosima, ukupnim satima, cenom rada, obračunom, godišnjim odmorom i bolovanjem.
+
 Pregledač ne može sam da upiše fajl u proizvoljan folder dok je aplikacija zatvorena. Zato se arhiva pravi automatski unutar aplikacije. Dugme **Sačuvaj mesečnu evidenciju** jednim klikom preuzima ZIP paket sa Excelom, CSV tabelom i kompletnom JSON kopijom.
 
 Prvi put kliknite **Poveži folder F:\Aplikacija radnih sati** i u prozoru izaberite taj folder na disku F. Posle toga dugme **Sačuvaj mesečnu evidenciju** direktno upisuje paket u `F:\Aplikacija radnih sati`, razvrstan po godini i mesecu. Pregledač može povremeno ponovo tražiti dozvolu za pristup folderu.
