@@ -27,7 +27,7 @@ Admin bira mesec strelicama ili kalendarom. Svaki mesec ima zasebnu evidenciju i
 
 Pregledač ne može sam da upiše fajl u proizvoljan folder dok je aplikacija zatvorena. Zato se arhiva pravi automatski unutar aplikacije. Dugme **Sačuvaj mesečnu evidenciju** jednim klikom preuzima ZIP paket sa Excelom, CSV tabelom i kompletnom JSON kopijom.
 
-Na Windows računaru paket se obično čuva u `C:\Users\masinac\Downloads`, odnosno u folderu **Preuzimanja**. Ako je pregledač podešen da pita gde treba sačuvati svaki fajl, sami birate folder.
+Prvi put kliknite **Poveži folder F:\Aplikacija radnih sati** i u prozoru izaberite taj folder na disku F. Posle toga dugme **Sačuvaj mesečnu evidenciju** direktno upisuje paket u `F:\Aplikacija radnih sati`, razvrstan po godini i mesecu. Pregledač može povremeno ponovo tražiti dozvolu za pristup folderu.
 
 ## Excel, CSV i JSON
 
@@ -41,8 +41,7 @@ Na kraju svakog meseca:
 
 1. Izaberite završeni mesec.
 2. Kliknite **Sačuvaj mesečnu evidenciju**.
-3. U folderu Downloads pronađite fajl, na primer `MASINAC-evidencija-2026-10.zip`.
-4. Premestite ZIP u folder, na primer `Evidencija sati/2026/10 - oktobar`.
-5. Po želji kopirajte ZIP i na USB ili drugi disk.
+3. Paket se automatski upisuje, na primer u `F:\Aplikacija radnih sati\2026\10 - oktobar\MASINAC-evidencija-2026-10.zip`.
+4. Po želji kopirajte ZIP i na USB ili drugi disk.
 
 JSON kopiju sačuvajte i posle većih izmena radnika ili ispravki evidencije.

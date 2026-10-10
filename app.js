@@ -38,7 +38,7 @@ async function loadAdmin(){
       try{const snapshot=await legacyRpc('admin_snapshot',{p_admin_password:pass}),result=await db.importLegacy(snapshot,pass);alert(`Lokalna baza je napravljena i stari podaci su automatski prebačeni: ${result.workers} radnika i ${result.records} unosa. Radnici nastavljaju da koriste postojeće PIN kodove.`)}
       catch{alert('Lokalna baza je napravljena. Stara baza nije uvezena jer lozinka nije ista ili servis nije dostupan; uvoz možete ponoviti dugmetom u administraciji.')}
     }
-    adminData=await rpc('admin_snapshot',{p_admin_password:pass});renderAdmin();renderArchives();el('adminContent').classList.remove('hidden');message('Lokalna baza je učitana.','ok')
+    adminData=await rpc('admin_snapshot',{p_admin_password:pass});renderAdmin();renderArchives();el('adminContent').classList.remove('hidden');await refreshBackupFolderStatus();message('Lokalna baza je učitana.','ok')
   }catch(e){el('adminContent').classList.add('hidden');message(e.message,'err');alert(e.message)}finally{busy(false)}
 }
 const adminPass=()=>el('adminPassword').value;
@@ -65,10 +65,14 @@ function csvFor(records){const head=['Radnik','Datum','Status','Dolazak','Odlaza
 function exportCSV(selected=el('adminMonth').value||month.currentMonth()){download(`evidencija-${selected}.csv`,csvFor(month.filterByMonth(adminData.records||[],selected)),'text/csv;charset=utf-8')}
 function exportExcel(selected=el('adminMonth').value||month.currentMonth()){ExcelExporter.download(selected,workersForMonth(selected),month.filterByMonth(adminData.records||[],selected))}
 function exportJSON(){download(`evidencija-kompletna-kopija-${month.localDateISO()}.json`,JSON.stringify(db.exportBackup(),null,2),'application/json')}
-function saveMonthlyPackage(selected=el('adminMonth').value||month.currentMonth()){
+async function configureBackupFolder(){try{const handle=await FolderBackupStore.chooseFolder();el('folderStatus').className='notice ok';el('folderStatus').textContent=`Povezan folder: ${handle.name}. Mesečne kopije idu na disk F.`}catch(error){if(error.name!=='AbortError')alert(error.message)}}
+async function refreshBackupFolderStatus(){if(!el('folderStatus'))return;const name=await FolderBackupStore.configuredName();el('folderStatus').className='notice '+(name?'ok':'info');el('folderStatus').textContent=name?`Povezan folder: ${name}. Mesečne kopije idu na disk F.`:'Folder na disku F još nije povezan.'}
+async function saveMonthlyPackage(selected=el('adminMonth').value||month.currentMonth()){
   const records=month.filterByMonth(adminData.records||[],selected),workers=workersForMonth(selected),xlsx=ExcelExporter.build(selected,workers,records),backup=JSON.stringify(db.exportBackup(),null,2),instructions=`MAŠINAC PLUS — mesečna evidencija ${month.monthLabel(selected)}\r\n\r\nExcel: pregled i štampa mesečnog obračuna.\r\nCSV: jednostavna tabela za dalju obradu.\r\nJSON: kompletna rezervna kopija za vraćanje podataka u aplikaciju.\r\n`;
   const archive=ExcelExporter.zip([[`evidencija-${selected}.xlsx`,xlsx],[`evidencija-${selected}.csv`,csvFor(records)],[`kompletna-rezervna-kopija-${month.localDateISO()}.json`,backup],['PROCITAJ-ME.txt',instructions]]);
-  download(`MASINAC-evidencija-${selected}.zip`,archive,'application/zip');message(`Mesečni paket za ${month.monthLabel(selected)} je preuzet u Downloads.`,'ok');
+  const filename=`MASINAC-evidencija-${selected}.zip`;
+  try{const path=await FolderBackupStore.save(selected,filename,archive);message(`Mesečni paket je sačuvan: ${path}`,'ok');await refreshBackupFolderStatus()}
+  catch(error){if(error.name==='AbortError')return;if(!FolderBackupStore.supported()){download(filename,archive,'application/zip');message('Pregledač ne podržava direktan upis na disk F; paket je preuzet u Downloads.','info')}else{message(error.message,'err');alert(error.message)}}
 }
 function renderArchives(){const rows=db.listArchives();el('archives').innerHTML=rows.length?rows.map(a=>`<div class="archive-row"><b>${esc(month.monthLabel(a.month))}</b><span>${a.records.length} unosa</span><button class="small green" onclick="saveMonthlyPackage('${a.month}')">Sačuvaj sve</button><button class="small gray" onclick="exportArchiveExcel('${a.month}')">Excel</button></div>`).join(''):'<p class="muted">Arhiva će se automatski pojaviti kada započne novi mesec.</p>'}
 function exportArchiveExcel(key){const a=db.listArchives().find(x=>x.month===key);if(a)ExcelExporter.download(key,a.workers,a.records)}
