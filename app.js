@@ -19,7 +19,7 @@ function completeBackup(){return {schema_version:4,exported_at:new Date().toISOS
 function archivedMonths(){const current=month.currentMonth(),keys=[...new Set((adminData.records||[]).map(r=>month.monthKey(r.work_date)).filter(key=>key&&key<current))].sort().reverse();return keys.map(key=>({month:key,records:month.filterByMonth(adminData.records,key),workers:adminData.workers||[]}))}
 function fillHours(){for(let h=0;h<24;h++){const v=String(h).padStart(2,'0')+':00';el('timeIn').add(new Option(v,v,false,h===7));el('timeOut').add(new Option(v,v,false,h===15))}}
 function toggleTimes(){document.querySelectorAll('.time').forEach(x=>x.classList.toggle('hidden',el('workStatus').value!=='Radio'))}
-async function loadWorkers(){try{const rows=await rpc('public_workers');['worker','cardWorker'].forEach(id=>{const s=el(id),selected=s.value;s.innerHTML='<option value="">-- Izaberite --</option>';rows.forEach(r=>s.add(new Option(r.worker_name,r.worker_name)));if([...s.options].some(o=>o.value===selected))s.value=selected});message('Povezano sa centralnom Supabase bazom.','ok')}catch(e){message(e.message,'err')}}
+async function loadWorkers(){try{const rows=await rpc('public_workers');['worker','cardWorker'].forEach(id=>{const s=el(id),selected=s.value;s.innerHTML='<option value="">-- Izaberite --</option>';rows.forEach(r=>s.add(new Option(r.worker_name,r.worker_name)));if([...s.options].some(o=>o.value===selected))s.value=selected});el('status').className='hidden'}catch(e){message(e.message,'err')}}
 async function submitEntry(){
   const name=el('worker').value,pin=el('entryPin').value,date=el('date').value,status=el('workStatus').value;
   if(!name||!/^[0-9]{4}$/.test(pin)||!date)return alert('Izaberite radnika, datum i unesite tačan četvorocifreni PIN.');
