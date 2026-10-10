@@ -45,7 +45,7 @@
       <h2>Administracija</h2>
       <div class="inline"><div><label>Admin lozinka</label><input id="adminPassword" type="password"></div><button class="green" onclick="loadAdmin()">Osveži bazu</button></div>
       <div class="inline"><button class="gray" onclick="changeAdminMonth(-1)">← Prethodni</button><div><label>Mesec obračuna</label><input id="adminMonth" type="month" onchange="renderAdmin()"></div><button class="gray" onclick="changeAdminMonth(1)">Sledeći →</button><button class="gray" onclick="setCurrentAdminMonth()">Tekući mesec</button></div>
-      <p class="muted">Pri prvom ulasku unesena lozinka postaje lokalna admin lozinka. Zapamtite je.</p>
+      <p class="muted">Pri prvom ulasku unesite postojeću admin lozinku stare baze. Ona postaje lokalna admin lozinka, a stari podaci se automatski prebacuju.</p>
     </div>
     <div id="adminContent" class="hidden">
       <div class="card"><h3>Dodaj radnika</h3><div class="grid"><input id="newName" placeholder="Ime i prezime"><input id="newPin" type="password" inputmode="numeric" maxlength="4" placeholder="PIN"><input id="newVacation" type="number" min="0" value="20" placeholder="Dani odmora"><button class="green" onclick="saveWorker()">Dodaj radnika</button></div></div>

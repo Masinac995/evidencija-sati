@@ -30,7 +30,10 @@ async function loadWorkerCard(){
 function openAdmin(){show('admin');el('adminPassword').focus()}
 async function loadAdmin(){
   const pass=el('adminPassword').value;if(!pass)return alert('Unesite admin lozinku.');
-  try{busy(true);if(!db.isAdminConfigured()){if(pass.length<4)throw new Error('Prva admin lozinka mora imati najmanje 4 znaka.');await db.createAdmin(pass);alert('Lokalna baza je napravljena. Zapamtite admin lozinku.')}
+  try{busy(true);if(!db.isAdminConfigured()){if(pass.length<4)throw new Error('Prva admin lozinka mora imati najmanje 4 znaka.');await db.createAdmin(pass);
+      try{const snapshot=await legacyRpc('admin_snapshot',{p_admin_password:pass}),result=await db.importLegacy(snapshot,pass);alert(`Lokalna baza je napravljena i stari podaci su automatski prebačeni: ${result.workers} radnika i ${result.records} unosa. Sada postavite novi PIN svakom radniku.`)}
+      catch{alert('Lokalna baza je napravljena. Stara baza nije uvezena jer lozinka nije ista ili servis nije dostupan; uvoz možete ponoviti dugmetom u administraciji.')}
+    }
     adminData=await rpc('admin_snapshot',{p_admin_password:pass});renderAdmin();renderArchives();el('adminContent').classList.remove('hidden');message('Lokalna baza je učitana.','ok')
   }catch(e){el('adminContent').classList.add('hidden');message(e.message,'err');alert(e.message)}finally{busy(false)}
 }
@@ -63,6 +66,6 @@ function exportArchiveExcel(key){const a=db.listArchives().find(x=>x.month===key
 function exportArchiveCSV(key){const a=db.listArchives().find(x=>x.month===key);if(a)download(`evidencija-${key}.csv`,csvFor(a.records),'text/csv;charset=utf-8')}
 function chooseJSON(){el('jsonFile').click()}
 async function importJSON(input){const file=input.files?.[0];if(!file)return;try{const result=await db.importBackup(JSON.parse(await file.text()),adminPass());alert(`Kopija je uvezena: ${result.workers} radnika i ${result.records} unosa.`);await loadAdmin();await loadWorkers()}catch(e){alert(e.message)}finally{input.value=''}}
-async function importLegacy(){if(!confirm('Uvesti postojeće radnike i unose iz stare centralne baze? Lokalni podaci biće zamenjeni.'))return;try{busy(true);const snapshot=await legacyRpc('admin_snapshot',{p_admin_password:adminPass()}),result=await db.importLegacy(snapshot,adminPass());alert(`Uvezeno je ${result.workers} radnika i ${result.records} unosa. Zbog bezbednosti stari PIN-ovi nisu dostupni; postavite novi PIN svakom radniku.`);await loadAdmin();await loadWorkers()}catch(e){alert(e.message)}finally{busy(false)}}
+async function importLegacy(){if(!confirm('Uvesti postojeće radnike i unose iz stare centralne baze? Lokalni podaci biće zamenjeni.'))return;const oldPass=prompt('Unesite admin lozinku stare baze:');if(!oldPass)return;try{busy(true);const snapshot=await legacyRpc('admin_snapshot',{p_admin_password:oldPass}),result=await db.importLegacy(snapshot,adminPass());alert(`Uvezeno je ${result.workers} radnika i ${result.records} unosa. Zbog bezbednosti stari PIN-ovi nisu dostupni; postavite novi PIN svakom radniku.`);await loadAdmin();await loadWorkers()}catch(e){alert(e.message)}finally{busy(false)}}
 
 db.initialize();el('date').value=month.localDateISO();el('cardMonth').value=month.currentMonth();el('adminMonth').value=month.currentMonth();fillHours();toggleTimes();loadWorkers();
