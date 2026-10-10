@@ -31,6 +31,8 @@ Pregledač ne može sam da upiše fajl u proizvoljan folder dok je aplikacija za
 
 Prvi put kliknite **Poveži folder F:\Aplikacija radnih sati** i u prozoru izaberite taj folder na disku F. Posle toga dugme **Sačuvaj mesečnu evidenciju** direktno upisuje paket u `F:\Aplikacija radnih sati`, razvrstan po godini i mesecu. Pregledač može povremeno ponovo tražiti dozvolu za pristup folderu.
 
+Kada je folder povezan, aplikacija posle svakog uspešnog unosa ili administrativne izmene automatski osvežava `F:\Aplikacija radnih sati\AUTOMATSKE-KOPIJE\NAJNOVIJA-KOMPLETNA-KOPIJA.json`. Ako se podaci pregledača obrišu, ova kopija ostaje na disku F i vraća se dugmetom **Uvezi JSON kopiju**.
+
 ## Excel, CSV i JSON
 
 - **Excel (.xlsx)** je konačna, pregledno formatirana mesečna tabela. Sadrži list „Mesečni sažetak” sa satima i obračunom svih radnika i list „Dnevni unosi” sa pojedinačnim evidencijama. Ovo je glavni fajl za čuvanje, štampu i knjigovođu.

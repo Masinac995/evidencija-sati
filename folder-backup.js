@@ -17,5 +17,8 @@
     const yearDir=await handle.getDirectoryHandle(year,{create:true}),monthDir=await yearDir.getDirectoryHandle(`${number} - ${label}`,{create:true}),file=await monthDir.getFileHandle(filename,{create:true}),writer=await file.createWritable();
     await writer.write(content);await writer.close();return `${handle.name}\\${year}\\${number} - ${label}\\${filename}`;
   }
-  return {supported,chooseFolder,configuredName,save};
+  async function saveLatest(filename,content){
+    const handle=await writableHandle(false);if(!handle)return null;const directory=await handle.getDirectoryHandle('AUTOMATSKE-KOPIJE',{create:true}),file=await directory.getFileHandle(filename,{create:true}),writer=await file.createWritable();await writer.write(content);await writer.close();return `${handle.name}\\AUTOMATSKE-KOPIJE\\${filename}`;
+  }
+  return {supported,chooseFolder,configuredName,save,saveLatest};
 });
